@@ -228,7 +228,7 @@
 	}
 
 	function extensionUiTpl() {
-		return 'iframe';
+		return `<iframe class="lws-ext-ui" src="${lws.extConfig.uiUrl}"/>`;
 	}
 
 	function sendToContent(msg, req, cb) {
