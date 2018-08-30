@@ -1,15 +1,33 @@
 <html>
-	<head>
-		<title>LWS integration example</title>
-		<link rel="stylesheet" href="/src/lws-sdk.css">
-	</head>
-	<body>
-		<div class="lwsClient"></div>
-		<br>
-		<div class="lwsClient"></div>
-	</body>
-	<script src="/src/lws-sdk.js"></script>
-	<script>
-		lws.init({el : '.lwsClient'});
-	</script>
+
+<head>
+	<title>LWS integration example</title>
+	<link rel="stylesheet" href="/src/lws-sdk.css">
+</head>
+
+<body>
+	<div class="lwsClient"></div>
+	<br>
+	<div class="lwsClient"></div>
+</body>
+<script src="/src/lws-sdk.js"></script>
+<script>
+	lws.init({
+		el: '.lwsClient',
+		apiUrl: '/api/v1/selfkey',
+		attributes: [
+			{
+				key: "first_name",
+				label: "First Name",
+				attribute: "http://platform.selfkey.org/schema/attribute/first-name.json"
+			},
+			{
+				key: "last_name",
+				label: "Last Name",
+				attribute: "http://platform.selfkey.org/schema/attribute/last-name.json"
+			}
+		]
+	});
+</script>
+
 </html>

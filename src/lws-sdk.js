@@ -82,16 +82,27 @@
 		lws.status = STATUSES.INITIALIZING;
 		initDomElements(config);
 		window.addEventListener('message', handleContentMessage);
-		sendToContent({ type: 'init', payload: 'config' }, {}, function initCb(err, res) {
-			if (err) {
-				console.error(err);
-				lws.status = STATUSES.ERROR;
-				lws.initError = err;
-				return;
+		sendToContent(
+			{
+				type: 'wp_init',
+				payload: {
+					website: window.location.host,
+					apiUrl: config.apiUrl,
+					attributes: config.attributes
+				}
+			},
+			{},
+			function initCb(err, res) {
+				if (err) {
+					console.error(err);
+					lws.status = STATUSES.ERROR;
+					lws.initError = err;
+					return;
+				}
+				lws.status = STATUSES.INITIALIZED;
+				lws.extConfig = res.payload;
 			}
-			lws.status = STATUSES.INITIALIZED;
-			lws.extConfig = res.payload;
-		});
+		);
 	};
 
 	lws.teardown = function initLWS() {
@@ -245,7 +256,7 @@
 				cb(null, res);
 			};
 			lws.reqs[msgId].timeout = setTimeout(function reqTimeout() {
-				console.error('request timeout for', msg.init);
+				console.error('request timeout for', msg.type);
 				lws.reqs[msgId].handleRes({
 					error: true,
 					payload: {
