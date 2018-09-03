@@ -239,6 +239,16 @@
 	padding: 60px 70px 80px;
 }
 
+.lws-client-ui .lws-popup__content {
+	padding: 70px 60px;
+	height: 755px;
+}
+
+.lws-client-ui .lws-popup__content iframe {
+	width: 100%;
+	height: 100%;
+}
+
 .lws-client-ui .lws-popup__content .area-title {
 	text-align: center;
 }
