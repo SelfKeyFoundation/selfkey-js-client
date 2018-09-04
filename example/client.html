@@ -15,6 +15,12 @@
 	lws.init({
 		el: '.lwsClient',
 		apiUrl: '/api/v1/selfkey',
+		website: {
+			name: 'LWS Example',
+			url: 'http://localhost:8080/example/client.html',
+			termsUrl: 'http://localhost:8080/example/terms.html',
+			policyUrl: 'http://localhost:8080/example/policy.html',
+		},
 		attributes: [
 			{
 				key: "first_name",
@@ -26,7 +32,10 @@
 				label: "Last Name",
 				attribute: "http://platform.selfkey.org/schema/attribute/last-name.json"
 			}
-		]
+		],
+		onAuthResponse: function(err, res){
+			console.log('on auth response', err, res);
+		}
 	});
 </script>
 

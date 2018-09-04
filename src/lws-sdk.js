@@ -1,5 +1,5 @@
 (function(window, document) {
-	/* global define */
+	/* global define, XMLHttpRequest */
 	'use strict';
 	var MSG_SRC = 'lws_client';
 	var CONTENT_SRC = 'lws_content';
@@ -80,13 +80,14 @@
 	lws.init = function initLWS(config) {
 		if (lws.status !== STATUSES.READY) throw new Error('LWS can be initialized only once');
 		lws.status = STATUSES.INITIALIZING;
+		lws.config = config;
 		initDomElements(config);
 		window.addEventListener('message', handleContentMessage);
 		sendToContent(
 			{
 				type: 'wp_init',
 				payload: {
-					website: window.location.host,
+					website: config.website,
 					apiUrl: config.apiUrl,
 					attributes: config.attributes
 				}
@@ -111,6 +112,7 @@
 		lws.initError = null;
 		lws.status = STATUSES.READY;
 		lws.extConfig = null;
+		lws.config = null;
 	};
 
 	function handleContentMessage(evt) {
@@ -119,6 +121,46 @@
 		if (!msg || !msg.type || !msg.meta || msg.meta.src !== CONTENT_SRC) return;
 		if (msg.meta.id && lws.reqs[msg.meta.id]) {
 			return lws.reqs[msg.meta.id].handleRes(msg);
+		}
+		if (msg.type === 'wp_auth') {
+			if (lws.config && typeof lws.config.onAuthResponse === 'function') {
+				if (msg.error) {
+					return lws.config.onAuthResponse(msg.payload);
+				}
+				return lws.config.onAuthResponse(null, msg.payload);
+			}
+			if (msg.error) {
+				console.error('lws-sdk:', msg.payload);
+				return;
+			}
+			if (msg.payload.token) {
+				var request = new XMLHttpRequest();
+				var params = 'token=' + msg.payload.token;
+				request.open('POST', lws.config.apiUrl + '/login', true);
+				request.onreadystatechange = function() {
+					var redirectTo = msg.payload.redirectTo;
+					if (request.readyState > 3 && request.status === 200) {
+						try {
+							var resp = JSON.parse(request.responseText);
+							redirectTo = resp.redirectTo;
+						} catch (error) {
+							console.error(('lws-sdk:', 'could not parse login response'));
+						}
+						if (redirectTo) {
+							window.location.href = redirectTo;
+						}
+						return;
+					}
+					console.error('lws-sdk:', 'login enpoint is note available');
+				};
+				request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				request.setRequestHeader('Connection', 'close');
+				request.send(params);
+				return;
+			}
+			if (msg.payload.redirectTo) {
+				window.location.href = msg.payload.redirectTo;
+			}
 		}
 	}
 
