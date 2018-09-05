@@ -1,0 +1,165 @@
+.lws-client-ui {
+	@import 'reset';
+	width: auto;
+	height: auto;
+	display: block;
+	font-family: Arial, Helvetica, sans-serif;
+	.lws-button {
+		min-height: 52px;
+		width: 380px;
+		line-height: 52px;
+		border-radius: 3px;
+		background-color: #1d505f;
+		box-shadow: inset 3px 3px 10px 0 rgba(0, 0, 0, 0.1);
+		text-align: center;
+		position: relative;
+		padding: 0 24px 0 60px;
+		cursor: pointer;
+		span {
+			color: #23e6fe;
+			font-size: 15px;
+			letter-spacing: 0.67px;
+			line-height: 52px;
+			text-align: center;
+			display: inline-block;
+			text-transform: uppercase;
+		}
+		&__logo {
+			box-sizing: border-box;
+			height: 38px;
+			width: auto;
+			display: block;
+			position: absolute;
+			left: 16px;
+			top: 7px;
+		}
+	}
+	.lws-popup {
+		display: block;
+		width: 0;
+		height: 0;
+		z-index: -20;
+		position: fixed;
+		background-color: rgba(32, 42, 51, 0.9);
+		left: 0;
+		top: 0;
+		overflow: hidden;
+		overflow-y: scroll;
+		color: #c5dce9;
+		&__container {
+			overflow: visible;
+			display: block;
+			width: 0;
+			height: 0;
+			margin: 30px auto;
+			background: #202a33;
+			box-shadow: 0 10px 20px 1px rgba(0, 0, 0, 0.27);
+			border-radius: 3px;
+			opacity: 0;
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: 0px;
+		}
+		&--visible {
+			display: block;
+			width: 100%;
+			height: 100%;
+			z-index: 20;
+			.lws-popup__container {
+				width: 600px;
+				min-height: 850px;
+				opacity: 1;
+			}
+		}
+		&__close {
+			position: absolute;
+			top: -18px;
+			right: -18px;
+			cursor: pointer;
+			width: 38px;
+			height: 38px;
+		}
+		&__header {
+			position: relative;
+			background: #1f2830;
+			border-bottom: 1px solid #43505b;
+			border-radius: 3px 3px 0 0;
+			padding: 24px 30px;
+			display: flex;
+			align-items: center;
+			h1 {
+				color: #c5dce9;
+				font-size: 24px;
+				font-weight: normal;
+				margin: 0;
+				padding: 0 0 0 25px;
+			}
+		}
+		&__content {
+			padding: 70px 60px;
+			height: 755px;
+			iframe {
+				width: 100%;
+				height: 100%;
+			}
+			.area-title {
+				text-align: center;
+				svg {
+					width: 74px;
+					height: 74px;
+				}
+				h2 {
+					text-transform: uppercase;
+					font-weight: normal;
+					font-size: 16px;
+					padding: 25px 0;
+					margin: 0;
+					color: #23e6fe;
+				}
+				h3 {
+					font-weight: normal;
+					font-size: 21px;
+					padding: 0 0 45px;
+					margin: 0;
+					color: #93b0c1;
+				}
+			}
+			.support-text {
+				text-align: center;
+				line-height: 22px;
+				color: #c5dce9;
+				padding: 0 0 30px;
+				margin: 0 0 1.5em 0;
+			}
+		}
+		.sk-btn {
+			display: block;
+			-webkit-transition: background 0.5s ease;
+			transition: background 0.5s ease;
+			height: 60px;
+			box-sizing: border-box;
+			border-radius: 3px;
+			font-size: 16px;
+			text-transform: uppercase;
+			letter-spacing: 0.6px;
+			text-decoration: none;
+			cursor: pointer;
+			text-align: center;
+			line-height: 60px;
+			&__disabled {
+				opacity: 0.5;
+				pointer-events: none;
+			}
+			&__primary {
+				color: #fff;
+				background: linear-gradient(0deg, #09a8ba 0%, #0abbd0 100%);
+				border: 0;
+				width: 100%;
+				&:hover {
+					background: linear-gradient(45deg, #09a8ba 0%, #0abbd0 100%);
+				}
+			}
+		}
+	}
+}

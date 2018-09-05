@@ -1,0 +1,49 @@
+<html>
+
+<head>
+	<title>Callback | LWS integration example</title>
+</head>
+
+<body>
+	<p>This is an example with client calling 'onAuthResponse' callback</p>
+	<p>To see an example without a callback please go
+		<a href="./index.html">here</a>
+	</p>
+	<h5>Example:</h5>
+	<div class="lwsClient"></div>
+</body>
+<script src="/lws-sdk.js"></script>
+<script>
+	lws.init({
+		el: '.lwsClient',
+		website: {
+			name: 'LWS Example',
+			url: 'http://localhost:3000/',
+			termsUrl: 'http://localhost:3000/terms.html',
+			policyUrl: 'http://localhost:3000/policy.html',
+			apiUrl: '/api/v1/selfkey',
+		},
+		attributes: [
+			{
+				key: "first_name",
+				label: "First Name",
+				attribute: "http://platform.selfkey.org/schema/attribute/first-name.json"
+			},
+			{
+				key: "last_name",
+				label: "Last Name",
+				attribute: "http://platform.selfkey.org/schema/attribute/last-name.json"
+			}
+		],
+		onAuthResponse: function (err, res) {
+			console.log('OnAuthResponse', err, res);
+			if (err) {
+				alert('Error! ' + err.message);
+				return;
+			}
+			alert(JSON.stringify(res));
+		}
+	});
+</script>
+
+</html>

@@ -2,24 +2,26 @@
 
 <head>
 	<title>LWS integration example</title>
-	<link rel="stylesheet" href="/src/lws-sdk.css">
 </head>
 
 <body>
-	<div class="lwsClient"></div>
-	<br>
+	<p>This is an example with client lib automatically calling to '/login' api endpoint.</p>
+	<p>To see an example with callback please go
+		<a href="./callback.html">here</a>
+	</p>
+	<h5>Example:</h5>
 	<div class="lwsClient"></div>
 </body>
-<script src="/src/lws-sdk.js"></script>
+<script src="/lws-sdk.js"></script>
 <script>
 	lws.init({
 		el: '.lwsClient',
-		apiUrl: '/api/v1/selfkey',
 		website: {
 			name: 'LWS Example',
-			url: 'http://localhost:8080/example/client.html',
-			termsUrl: 'http://localhost:8080/example/terms.html',
-			policyUrl: 'http://localhost:8080/example/policy.html',
+			url: 'http://localhost:3000/',
+			termsUrl: 'http://localhost:3000/terms.html',
+			policyUrl: 'http://localhost:3000/policy.html',
+			apiUrl: '/api/v1/selfkey',
 		},
 		attributes: [
 			{
@@ -33,9 +35,6 @@
 				attribute: "http://platform.selfkey.org/schema/attribute/last-name.json"
 			}
 		],
-		onAuthResponse: function(err, res){
-			console.log('on auth response', err, res);
-		}
 	});
 </script>
 
