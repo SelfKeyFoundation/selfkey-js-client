@@ -1,5 +1,5 @@
 (function(window, document) {
-	/* global define */
+	/* global define, XMLHttpRequest */
 	'use strict';
 	var MSG_SRC = 'lws_client';
 	var CONTENT_SRC = 'lws_content';
@@ -80,18 +80,30 @@
 	lws.init = function initLWS(config) {
 		if (lws.status !== STATUSES.READY) throw new Error('LWS can be initialized only once');
 		lws.status = STATUSES.INITIALIZING;
+		lws.config = config;
 		initDomElements(config);
 		window.addEventListener('message', handleContentMessage);
-		sendToContent({ type: 'init', payload: 'config' }, {}, function initCb(err, res) {
-			if (err) {
-				console.error(err);
-				lws.status = STATUSES.ERROR;
-				lws.initError = err;
-				return;
+		sendToContent(
+			{
+				type: 'wp_init',
+				payload: {
+					website: config.website,
+					apiUrl: config.apiUrl,
+					attributes: config.attributes
+				}
+			},
+			{},
+			function initCb(err, res) {
+				if (err) {
+					console.error(err);
+					lws.status = STATUSES.ERROR;
+					lws.initError = err;
+					return;
+				}
+				lws.status = STATUSES.INITIALIZED;
+				lws.extConfig = res.payload;
 			}
-			lws.status = STATUSES.INITIALIZED;
-			lws.extConfig = res.payload;
-		});
+		);
 	};
 
 	lws.teardown = function initLWS() {
@@ -100,6 +112,7 @@
 		lws.initError = null;
 		lws.status = STATUSES.READY;
 		lws.extConfig = null;
+		lws.config = null;
 	};
 
 	function handleContentMessage(evt) {
@@ -108,6 +121,46 @@
 		if (!msg || !msg.type || !msg.meta || msg.meta.src !== CONTENT_SRC) return;
 		if (msg.meta.id && lws.reqs[msg.meta.id]) {
 			return lws.reqs[msg.meta.id].handleRes(msg);
+		}
+		if (msg.type === 'wp_auth') {
+			if (lws.config && typeof lws.config.onAuthResponse === 'function') {
+				if (msg.error) {
+					return lws.config.onAuthResponse(msg.payload);
+				}
+				return lws.config.onAuthResponse(null, msg.payload);
+			}
+			if (msg.error) {
+				console.error('lws-sdk:', msg.payload);
+				return;
+			}
+			if (msg.payload.token) {
+				var request = new XMLHttpRequest();
+				var params = 'token=' + msg.payload.token;
+				request.open('POST', lws.config.apiUrl + '/login', true);
+				request.onreadystatechange = function() {
+					var redirectTo = msg.payload.redirectTo;
+					if (request.readyState > 3 && request.status === 200) {
+						try {
+							var resp = JSON.parse(request.responseText);
+							redirectTo = resp.redirectTo;
+						} catch (error) {
+							console.error(('lws-sdk:', 'could not parse login response'));
+						}
+						if (redirectTo) {
+							window.location.href = redirectTo;
+						}
+						return;
+					}
+					console.error('lws-sdk:', 'login enpoint is note available');
+				};
+				request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				request.setRequestHeader('Connection', 'close');
+				request.send(params);
+				return;
+			}
+			if (msg.payload.redirectTo) {
+				window.location.href = msg.payload.redirectTo;
+			}
 		}
 	}
 
@@ -228,7 +281,7 @@
 	}
 
 	function extensionUiTpl() {
-		return 'iframe';
+		return `<iframe class="lws-ext-ui" src="${lws.extConfig.uiUrl}"/>`;
 	}
 
 	function sendToContent(msg, req, cb) {
@@ -245,7 +298,7 @@
 				cb(null, res);
 			};
 			lws.reqs[msgId].timeout = setTimeout(function reqTimeout() {
-				console.error('request timeout for', msg.init);
+				console.error('request timeout for', msg.type);
 				lws.reqs[msgId].handleRes({
 					error: true,
 					payload: {
