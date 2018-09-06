@@ -15,7 +15,7 @@ var STATUSES = {
 	ERROR: 4
 };
 
-var extensionId = 'test';
+var extensionId = 'fmmadhehohahcpnjjkbdajimilceilcd';
 
 var lws = {
 	msgId: 0,
