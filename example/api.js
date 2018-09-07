@@ -6,6 +6,7 @@ const generateNonce = (req, res) => {
 };
 
 const auth = (req, res) => {
+	console.log(req.body);
 	res.json({ token: '1234' });
 };
 
