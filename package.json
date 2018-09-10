@@ -4,6 +4,7 @@
   "description": "js sdk for log-in with selfkey components",
   "license": "MIT",
   "repository": "https://github.com/kyc-chain/selfkey-js-client",
+  "main": "./dist/lws-sdk.js",
   "author": "",
   "keywords": [
     ""

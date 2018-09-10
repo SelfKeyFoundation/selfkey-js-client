@@ -2,6 +2,7 @@ const merge = require('webpack-merge');
 const common = require('./webpack.common');
 const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = merge.smart(common, {
 	mode: 'production',
@@ -43,6 +44,7 @@ module.exports = merge.smart(common, {
 			}
 		]
 	},
+	plugins: [new CleanWebpackPlugin(['dist'], { beforeEmit: true })],
 	optimization: {
 		minimize: true,
 		minimizer: [
