@@ -1,6 +1,6 @@
 {
   "name": "selfkey-login-sdk",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "description": "js sdk for log-in with selfkey components",
   "license": "MIT",
   "repository": "https://github.com/kyc-chain/selfkey-js-client",
