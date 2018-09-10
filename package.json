@@ -1,6 +1,6 @@
 {
   "name": "selfkey-login-sdk",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "description": "js sdk for log-in with selfkey components",
   "license": "MIT",
   "repository": "https://github.com/kyc-chain/selfkey-js-client",
@@ -12,7 +12,8 @@
     "start": "nodemon ./example/index.js",
     "build": "webpack --config webpack.prod.js",
     "precommit": "pretty-quick --staged && lint-staged",
-    "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check"
+    "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
+    "prepublishOnly": "yarn build"
   },
   "lint-staged": {
     "*.js": [
