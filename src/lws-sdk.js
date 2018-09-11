@@ -104,11 +104,11 @@ function handleContentMessage(evt) {
 		}
 		if (msg.payload.token) {
 			var request = new XMLHttpRequest();
-			var params = 'token=' + msg.payload.token;
+			var body = JSON.stringify(msg.payload);
 			request.open('POST', lws.config.website.apiUrl + '/login', true);
 			request.onreadystatechange = function() {
 				var redirectTo = msg.payload.redirectTo;
-				if (request.readyState > 3 && request.status === 200) {
+				if (request.readyState > 3) {
 					try {
 						var resp = JSON.parse(request.responseText);
 						redirectTo = resp.redirectTo;
@@ -118,13 +118,10 @@ function handleContentMessage(evt) {
 					if (redirectTo) {
 						window.location.href = redirectTo;
 					}
-					return;
 				}
-				console.error('lws-sdk:', 'login enpoint is note available');
 			};
-			request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-			request.setRequestHeader('Connection', 'close');
-			request.send(params);
+			request.setRequestHeader('Content-type', 'application/json');
+			request.send(body);
 			return;
 		}
 		if (msg.payload.redirectTo) {
