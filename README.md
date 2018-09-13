@@ -1,14 +1,26 @@
-# selfkey-login
+# SelfKey JavaScript Client Library
 
-External "Log-in with selfkey" components.
-
-* `develop` [![Build Status](https://travis-ci.org/SelfKeyFoundation/selfkey-login.svg?branch=develop)](https://travis-ci.org/SelfKeyFoundation/selfkey-login) [![codecov](https://codecov.io/gh/SelfKeyFoundation/selfkey-login/branch/develop/graph/badge.svg)](https://codecov.io/gh/SelfKeyFoundation/selfkey-login)
-* `master` [![Build Status](https://travis-ci.org/SelfKeyFoundation/selfkey-login.svg?branch=master)](https://travis-ci.org/SelfKeyFoundation/selfkey-login) [![codecov](https://codecov.io/gh/SelfKeyFoundation/selfkey-login/branch/master/graph/badge.svg)](https://codecov.io/gh/SelfKeyFoundation/selfkey-login)
-
-## About
-
-* See [features document](https://docs.google.com/document/d/1xPnMNIRMfN_C0R4dhrCH6PIfqtYOLApTjQbKOOWC-NA) for more details.
+Client library for integrating with SelfKey Connect Browser Extension
 
 ## Contributing
 
 Contributions are welcome.  Please see [the contributing notes](CONTRIBUTING.md)
+
+## License
+SelfKey JavaScript Client Library    
+Copyright (c) 2018 SelfKey Foundation [https://selfkey.org/](https://selfkey.org/)
+
+[The GPL-3.0 License](http://opensource.org/licenses/GPL-3.0)
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
