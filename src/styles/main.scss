@@ -1,9 +1,11 @@
+@import url('https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i&subset=latin-ext');
+
 .lws-client-ui {
 	@import 'reset';
 	width: auto;
 	height: auto;
 	display: block;
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: Lato, arial, sans-serif;
 	.lws-button {
 		min-height: 52px;
 		width: 380px;
