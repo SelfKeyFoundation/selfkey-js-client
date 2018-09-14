@@ -14,7 +14,8 @@
     "build": "webpack --config webpack.prod.js",
     "precommit": "pretty-quick --staged && lint-staged",
     "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
-    "prepublishOnly": "yarn build"
+	"prepublishOnly": "yarn build",
+	"tests": "echo: 'please implement tests'"
   },
   "lint-staged": {
     "*.js": [
