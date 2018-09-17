@@ -25,12 +25,11 @@ aliases:
 
 jobs:
     'unit-test':
+        working_directory: ~/repo
         docker: &DOCKERIMAGE
             - image: circleci/node:9.5.0
         steps:
             - checkout
-            - attach_workspace:
-                  at: /tmp/linux
             - run:
                   name: Install Node Packages
                   command: yarn
@@ -39,11 +38,10 @@ jobs:
                   command: yarn test
 
     'publish':
+        working_directory: ~/repo
         docker: *DOCKERIMAGE
         steps:
             - checkout
-            - attach_workspace:
-                  at: /tmp/linux
             - run:
                   name: Authenticate with registry
                   command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
