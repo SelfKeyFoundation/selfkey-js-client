@@ -13,4 +13,4 @@ app.use(bodyParser.json({ limit: '300mb' }));
 // app.use(bodyParser.json({ limit: '300mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/v1/selfkey', api);
-app.listen(3000, () => console.log('dev server is listening on 3000'));
+app.listen(process.env.PORT || 3000, () => console.log('dev server is listening on 3000'));

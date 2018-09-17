@@ -7,7 +7,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 module.exports = merge.smart(common, {
 	mode: 'production',
 	entry: {
-		'lws-sdk.min': './src/index.js'
+		'lws.min': './src/index.js'
 	},
 	module: {
 		rules: [

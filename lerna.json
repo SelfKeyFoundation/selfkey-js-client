@@ -1,0 +1,12 @@
+{
+  "packages": ["packages/*"],
+  "command": {
+    "add": {
+      "npmClient": "yarn"
+    },
+    "run": {
+      "npmClient": "yarn"
+    }
+  },
+  "version": "1.0.0-beta.4"
+}

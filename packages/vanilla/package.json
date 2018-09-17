@@ -1,0 +1,70 @@
+{
+  "author": "SelfKey Wallet LLC help@selfkey.org (https://selfkey.org)",
+  "description": "js sdk for log-in with selfkey components",
+  "devDependencies": {
+    "babel-eslint": "^8.2.6",
+    "body-parser": "^1.18.3",
+    "chai": "^4.1.2",
+    "clean-webpack-plugin": "^0.1.19",
+    "css-loader": "^1.0.0",
+    "cssnano": "^4.1.0",
+    "eslint": "^4.17.0",
+    "eslint-config-prettier": "^2.8.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jest": "^21.21.0",
+    "eslint-plugin-mocha": "^4.11.0",
+    "eslint-plugin-node": "^6.0.0",
+    "eslint-plugin-prettier": "^2.3.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-react": "^7.11.1",
+    "eslint-plugin-standard": "^3.0.1",
+    "express": "^4.16.3",
+    "http-server": "^0.11.1",
+    "husky": "^0.14.3",
+    "jest": "^23.5.0",
+    "lint-staged": "^6.1.0",
+    "mocha": "^4.0.1",
+    "node-sass": "^4.9.3",
+    "nodemon": "^1.18.4",
+    "postcss-import": "^12.0.0",
+    "postcss-loader": "^3.0.0",
+    "prettier": "^1.14.2",
+    "pretty-quick": "^1.6.0",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.0",
+    "svg-inline-loader": "^0.8.0",
+    "uglifyjs-webpack-plugin": "^1.3.0",
+    "url-loader": "^1.1.1",
+    "webpack": "^4.17.2",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-middleware": "^3.2.0",
+    "webpack-dev-server": "^3.1.7",
+    "webpack-merge": "^4.1.4"
+  },
+  "engines": {
+    "node": "9.5.0",
+    "npm": "5.6.0"
+  },
+  "license": "GPL3",
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "main": "./dist/lws.js",
+  "module": "./dist/lws.js",
+  "name": "lws-js-client",
+  "repository": "https://github.com/kyc-chain/selfkey-js-client",
+  "scripts": {
+    "build": "webpack --config webpack.prod.js",
+    "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
+    "precommit": "pretty-quick --staged && lint-staged",
+    "prepublishOnly": "yarn build",
+    "start": "PORT=3030 nodemon ./example/index.js",
+    "test": "echo 'please implement tests'"
+  },
+  "unpkg": "./dist/lws.min.js",
+  "version": "1.0.0-beta.5"
+}
