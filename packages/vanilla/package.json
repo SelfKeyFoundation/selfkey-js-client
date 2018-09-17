@@ -46,7 +46,7 @@
     "node": "9.5.0",
     "npm": "5.6.0"
   },
-  "license": "GPL3",
+  "license": "GPL-3.0-only",
   "lint-staged": {
     "*.js": [
       "eslint --fix",
