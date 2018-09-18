@@ -21,16 +21,15 @@ aliases:
     - &step_yarn_upgrade
       run:
           name: Upgrade Yarn
-          command: npm install -g yarn@latest
+          command: npm install -g yarn@latest lerna
 
 jobs:
     'unit-test':
+        working_directory: ~/repo
         docker: &DOCKERIMAGE
             - image: circleci/node:9.5.0
         steps:
             - checkout
-            - attach_workspace:
-                  at: /tmp/linux
             - run:
                   name: Install Node Packages
                   command: yarn
@@ -39,17 +38,16 @@ jobs:
                   command: yarn test
 
     'publish':
+        working_directory: ~/repo
         docker: *DOCKERIMAGE
         steps:
             - checkout
-            - attach_workspace:
-                  at: /tmp/linux
             - run:
                   name: Authenticate with registry
                   command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
             - run:
                   name: Publish package
-                  command: npm publish
+                  command: lerna publish
 workflows:
     version: 2
     main:
@@ -65,4 +63,4 @@ workflows:
                       branches:
                           ignore: /.*/
                       tags:
-                          only: /.*/
+                          only: /v.*/

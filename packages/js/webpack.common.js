@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
 	entry: {
-		'lws-sdk': './src/index.js'
+		lws: './src/index.js'
 	},
 	target: 'web',
 	module: {

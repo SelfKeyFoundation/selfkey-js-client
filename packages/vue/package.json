@@ -1,0 +1,39 @@
+{
+	"author": "SelfKey Wallet LLC help@selfkey.org (https://selfkey.org)",
+	"bugs": {
+		"url": "https://github.com/SelfKeyFoundation/selfkey-js-client/issues"
+	},
+	"dependencies": {
+		"lws-js-client": "^1.0.0-beta.5"
+	},
+	"description": "Vue.js SDK for integrating Login with SelfKey",
+	"devDependencies": {
+		"jest": "^23.5.0",
+		"webpack-cli": "^3.1.0",
+		"webpack-dev-server": "^3.1.7",
+		"vue": "^2.5.16"
+	},
+	"engines": {
+		"node": "9.5.0",
+		"npm": "5.6.0"
+	},
+	"homepage": "https://github.com/SelfKeyFoundation/selfkey-js-client#readme",
+	"license": "GPL-3.0-only",
+	"main": "dist/lws-vue-client.js",
+	"module": "dist/lws-vue-client.js",
+	"name": "lws-vue-client",
+	"peerDependencies": {
+		"vue": "^2.5.16"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/SelfKeyFoundation/selfkey-js-client.git"
+	},
+	"scripts": {
+		"build": "webpack --config webpack.prod.js",
+		"start": "webpack-dev-server --config webpack.dev.js",
+		"test": "echo 'please implement tests'"
+	},
+	"unpkg": "dist/lws-vue-client.min.js",
+	"version": "1.0.0-beta.4"
+}

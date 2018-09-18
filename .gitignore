@@ -14,5 +14,4 @@
 release
 .vscode
 
-out/
-dist/
+**/dist/
