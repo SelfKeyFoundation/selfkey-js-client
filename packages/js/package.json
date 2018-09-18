@@ -1,0 +1,25 @@
+{
+  "author": "SelfKey Wallet LLC help@selfkey.org (https://selfkey.org)",
+  "description": "js sdk for log-in with selfkey components",
+  "devDependencies": {
+    "jest": "^23.5.0",
+    "nodemon": "^1.18.4",
+    "webpack-cli": "^3.1.0"
+  },
+  "engines": {
+    "node": "9.5.0",
+    "npm": "5.6.0"
+  },
+  "license": "GPL-3.0-only",
+  "main": "./dist/lws.js",
+  "module": "./dist/lws.js",
+  "name": "lws-js-client",
+  "repository": "https://github.com/kyc-chain/selfkey-js-client",
+  "scripts": {
+    "build": "webpack --config webpack.prod.js",
+    "start": "PORT=3030 nodemon ./example/index.js",
+    "test": "echo 'please implement tests'"
+  },
+  "unpkg": "./dist/lws.min.js",
+  "version": "1.0.0-beta.5"
+}

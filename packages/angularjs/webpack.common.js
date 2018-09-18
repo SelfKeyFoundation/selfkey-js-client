@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
 	entry: {
-		'lws-angular-client': './src/index.js'
+		'lws-angularjs-client': './src/index.js'
 	},
 	target: 'web',
 	module: {

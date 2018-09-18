@@ -6,11 +6,10 @@
   "dependencies": {
     "lws-js-client": "^1.0.0-beta.5"
   },
-  "description": "React SDK for integrating Login with SelfKey",
+  "description": "Angular.js 1 SDK for integrating Login with SelfKey",
   "devDependencies": {
     "jest": "^23.5.0",
-    "react": "^16.4.1",
-    "react-dom": "^16.4.1",
+    "lerna": "^3.4.0",
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.1.7"
   },
@@ -20,12 +19,12 @@
   },
   "homepage": "https://github.com/SelfKeyFoundation/selfkey-js-client#readme",
   "license": "GPL-3.0-only",
-  "main": "dist/lws-react-client.js",
-  "module": "dist/lws-react-client.js",
-  "name": "lws-react-client",
+
+  "main": "dist/lws-angularjs-client.js",
+  "module": "dist/lws-angularjs-client.js",
+  "name": "lws-angularjs-client",
   "peerDependencies": {
-    "react": "^16.4.1",
-    "react-dom": "^16.4.1"
+    "angular": "^1.6"
   },
   "repository": {
     "type": "git",
@@ -36,6 +35,6 @@
     "start": "webpack-dev-server --config webpack.dev.js",
     "test": "echo 'please implement tests'"
   },
-  "unpkg": "dist/lws-react-client.min.js",
+  "unpkg": "dist/lws-angularjs-client.min.js",
   "version": "1.0.0-beta.4"
 }

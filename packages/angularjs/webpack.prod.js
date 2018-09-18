@@ -7,7 +7,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 module.exports = merge.smart(common, {
 	mode: 'production',
 	entry: {
-		'lws-angular-client.min': './src/index.js'
+		'lws-angularjs-client.min': './src/index.js'
 	},
 	plugins: [new CleanWebpackPlugin(['dist'], { beforeEmit: true })],
 	optimization: {
