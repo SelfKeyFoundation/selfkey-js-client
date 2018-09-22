@@ -53,9 +53,6 @@ workflows:
     main:
         jobs:
             - 'unit-test'
-            - 'build':
-                  requires:
-                      - unit-test
             - 'publish':
                   requires:
                       - unit-test
