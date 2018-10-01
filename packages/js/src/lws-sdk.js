@@ -77,7 +77,7 @@ lws.init = function initLWS(config) {
 
 lws.teardown = function initLWS() {
 	teardownDomElements();
-	sendToContent({ type: 'teardown' });
+	sendToContent({ type: 'wp_teardown' });
 	lws.initError = null;
 	lws.status = STATUSES.READY;
 	lws.extConfig = null;
