@@ -60,7 +60,7 @@ workflows:
   main:
     jobs:
       - 'unit-test':
-           filters:
+          filters:
             tags:
               only: /.*/
       - 'publish':
