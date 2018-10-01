@@ -45,9 +45,6 @@ jobs:
       - *step_prepare_cache_buster
       - *step_restore_cache
       - run:
-          name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
-      - run:
           name: Install Packages
           command: yarn
       - run:
