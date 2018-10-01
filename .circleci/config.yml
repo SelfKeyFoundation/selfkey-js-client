@@ -61,8 +61,6 @@ workflows:
     jobs:
       - 'unit-test':
         filters:
-          branches:
-            only: /.*/
           tags:
             only: /.*/
       - 'publish':
@@ -72,4 +70,4 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /v.*/
