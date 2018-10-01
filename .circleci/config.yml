@@ -21,13 +21,13 @@ aliases:
   - &step_yarn_upgrade
     run:
       name: Upgrade Yarn
-      command: sudo npm install -g yarn@latest lerna
+      command: npm install -g yarn@latest lerna
 
 jobs:
   'unit-test':
     working_directory: ~/repo
     docker: &DOCKERIMAGE
-      - image: circleci/node:9.5.0
+      - image: circleci/node:9.5-alpine-postgis
     steps:
       - checkout
       - run:
