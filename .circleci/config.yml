@@ -1,67 +1,67 @@
 version: 2
 aliases:
-    - &cache_version '1'
-    - &step_prepare_cache_buster
-      run:
-          name: Prepare Cache Buster
-          command: echo ${CACHE_VERSION} > /tmp/cache_buster
-    - &step_restore_cache
-      restore_cache:
-          name: Restore Yarn Package Cache
-          keys:
-              - yarn-packages-{{ checksum "/tmp/cache_buster" }}-{{ .Branch }}
-              - yarn-packages-{{ checksum "/tmp/cache_buster" }}}-master
-              - yarn-packages-{{ checksum "/tmp/cache_buster" }}-
-    - &step_save_cache
-      save_cache:
-          name: Save Yarn Package Cache
-          key: yarn-packages-{{ checksum "/tmp/cache_buster" }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
-          paths:
-              - node_modules/
-    - &step_yarn_upgrade
-      run:
-          name: Upgrade Yarn
-          command: npm install -g yarn@latest lerna
+  - &cache_version '1'
+  - &step_prepare_cache_buster
+    run:
+      name: Prepare Cache Buster
+      command: echo ${CACHE_VERSION} > /tmp/cache_buster
+  - &step_restore_cache
+    restore_cache:
+      name: Restore Yarn Package Cache
+      keys:
+        - yarn-packages-{{ checksum "/tmp/cache_buster" }}-{{ .Branch }}
+        - yarn-packages-{{ checksum "/tmp/cache_buster" }}}-master
+        - yarn-packages-{{ checksum "/tmp/cache_buster" }}-
+  - &step_save_cache
+    save_cache:
+      name: Save Yarn Package Cache
+      key: yarn-packages-{{ checksum "/tmp/cache_buster" }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      paths:
+        - node_modules/
+  - &step_yarn_upgrade
+    run:
+      name: Upgrade Yarn
+      command: npm install -g yarn@latest lerna
 
 jobs:
-    'unit-test':
-        working_directory: ~/repo
-        docker: &DOCKERIMAGE
-            - image: circleci/node:9.5.0
-        steps:
-            - checkout
-            - run:
-                  name: Install Node Packages
-                  command: yarn
-            - run:
-                  name: Unit Tests
-                  command: yarn test
+  'unit-test':
+    working_directory: ~/repo
+    docker: &DOCKERIMAGE
+      - image: circleci/node:9.5.0
+    steps:
+      - checkout
+      - run:
+          name: Install Node Packages
+          command: yarn
+      - run:
+          name: Unit Tests
+          command: yarn test
 
-    'publish':
-        working_directory: ~/repo
-        docker: *DOCKERIMAGE
-        steps:
-            - checkout
-            - &step_yarn_upgrade
-            - run:
-                  name: Authenticate with registry
-                  command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
-            - run:
-                  name: Install Packages
-                  command: yarn
-            - run:
-                  name: Publish package
-                  command: yarn release
+  'publish':
+    working_directory: ~/repo
+    docker: *DOCKERIMAGE
+    steps:
+      - checkout
+      - *step_yarn_upgrade
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: Install Packages
+          command: yarn
+      - run:
+          name: Publish package
+          command: yarn release
 workflows:
-    version: 2
-    main:
-        jobs:
-            - 'unit-test'
-            - 'publish':
-                  requires:
-                      - unit-test
-                  filters:
-                      tags:
-                          only: /v.*/
-                      branches:
-                          only: master
+  version: 2
+  main:
+    jobs:
+      - 'unit-test'
+      - 'publish':
+          requires:
+            - unit-test
+          filters:
+            tags:
+              only: /v.*/
+            branches:
+              only: master
