@@ -59,7 +59,12 @@ workflows:
   version: 2
   main:
     jobs:
-      - 'unit-test'
+      - 'unit-test':
+        filters:
+          branches:
+            only: /.*/
+          tags:
+            only: /.*/
       - 'publish':
           requires:
             - unit-test
@@ -67,4 +72,4 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /v.*/
+              only: /.*/
