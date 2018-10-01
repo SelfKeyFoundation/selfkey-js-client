@@ -48,6 +48,9 @@ jobs:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
       - run:
+          name: Install Packages
+          command: yarn
+      - run:
           name: Publish package
           command: yarn release
       - *step_save_cache
