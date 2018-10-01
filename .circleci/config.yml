@@ -21,7 +21,7 @@ aliases:
   - &step_yarn_upgrade
     run:
       name: Upgrade Yarn
-      command: npm install -g yarn@latest lerna
+      command: sudo npm install -g yarn@latest lerna
 
 jobs:
   'unit-test':
