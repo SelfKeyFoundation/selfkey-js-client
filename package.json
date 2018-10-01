@@ -53,7 +53,7 @@
     "build": "lerna run build --stream --parallel",
     "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
     "prepublishOnly": "yarn build",
-    "publish": "lerna run publish",
+    "release": "lerna publish",
     "start": "lerna run start --stream --parallel",
     "test": "lerna run test"
   },

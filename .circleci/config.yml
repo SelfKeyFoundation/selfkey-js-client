@@ -42,12 +42,16 @@ jobs:
         docker: *DOCKERIMAGE
         steps:
             - checkout
+            - &step_yarn_upgrade
             - run:
                   name: Authenticate with registry
                   command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
             - run:
+                  name: Install Packages
+                  command: yarn
+            - run:
                   name: Publish package
-                  command: lerna publish
+                  command: yarn release
 workflows:
     version: 2
     main:
