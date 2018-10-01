@@ -4,7 +4,7 @@
     "url": "https://github.com/SelfKeyFoundation/selfkey-js-client/issues"
   },
   "dependencies": {
-    "lws-js-client": "^1.0.0-beta.21"
+    "lws-js-client": "^1.0.0-beta.22"
   },
   "description": "React SDK for integrating Login with SelfKey",
   "devDependencies": {
@@ -33,5 +33,5 @@
     "test": "echo 'please implement tests'"
   },
   "unpkg": "dist/lws-react-client.min.js",
-  "version": "1.0.0-beta.21"
+  "version": "1.0.0-beta.22"
 }
