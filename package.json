@@ -53,7 +53,7 @@
     "build": "lerna run build --stream --parallel",
     "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
     "prepublishOnly": "yarn build",
-    "release": "lerna publish from-git --yes --npm-client=npm --registry='//registry.npmjs.org/:_authToken=$NPM_TOKEN'",
+    "release": "lerna publish from-git --yes --npm-client=npm",
     "start": "lerna run start --stream --parallel",
     "test": "lerna run test"
   },

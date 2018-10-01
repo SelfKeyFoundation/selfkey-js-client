@@ -52,7 +52,7 @@ jobs:
           command: yarn
       - run:
           name: Publish package
-          command: yarn release
+          command: npm run release
       - *step_save_cache
 workflows:
   version: 2
