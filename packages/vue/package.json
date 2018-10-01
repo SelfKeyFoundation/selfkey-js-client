@@ -13,10 +13,6 @@
 		"webpack-cli": "^3.1.0",
 		"webpack-dev-server": "^3.1.7"
 	},
-	"engines": {
-		"node": "9.5.0",
-		"npm": "5.6.0"
-	},
 	"homepage": "https://github.com/SelfKeyFoundation/selfkey-js-client#readme",
 	"license": "GPL-3.0-only",
 	"main": "dist/lws-vue-client.js",
