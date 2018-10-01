@@ -42,6 +42,8 @@ jobs:
     docker: *DOCKERIMAGE
     steps:
       - checkout
+      - *step_prepare_cache_buster
+      - *step_restore_cache
       - *step_yarn_upgrade
       - run:
           name: Authenticate with registry
@@ -52,6 +54,7 @@ jobs:
       - run:
           name: Publish package
           command: yarn release
+      - *step_save_cache
 workflows:
   version: 2
   main:
@@ -64,4 +67,4 @@ workflows:
             tags:
               only: /v.*/
             branches:
-              only: master
+              ignore: /.*/
