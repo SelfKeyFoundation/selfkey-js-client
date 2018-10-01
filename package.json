@@ -50,7 +50,7 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "build": "lerna run build --stream --parallel",
+    "build": "lerna run build",
     "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
     "prepublishOnly": "yarn build",
     "release": "lerna publish from-git --yes --npm-client=npm",
