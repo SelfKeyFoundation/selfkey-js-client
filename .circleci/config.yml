@@ -46,7 +46,7 @@ jobs:
       - *step_restore_cache
       - run:
           name: Authenticate with registry
-          command: npm config set "//registry.npmjs.org/:_authToken=$NPM_TOKEN"
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
       - run:
           name: Install Packages
           command: yarn
