@@ -57,7 +57,7 @@ workflows:
                   requires:
                       - unit-test
                   filters:
-                      branches:
-                          ignore: /.*/
                       tags:
                           only: /v.*/
+                      branches:
+                          ignore: /.*/
