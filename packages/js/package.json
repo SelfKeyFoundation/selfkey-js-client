@@ -17,5 +17,5 @@
     "test": "echo 'please implement tests'"
   },
   "unpkg": "./dist/lws.min.js",
-  "version": "1.0.0-beta.15"
+  "version": "1.0.0-beta.16"
 }
