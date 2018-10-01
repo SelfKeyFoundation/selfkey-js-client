@@ -60,9 +60,9 @@ workflows:
   main:
     jobs:
       - 'unit-test':
-        filters:
-          tags:
-            only: /.*/
+           filters:
+            tags:
+              only: /.*/
       - 'publish':
           requires:
             - unit-test
