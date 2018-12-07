@@ -3,8 +3,8 @@
 const tpl = require('./templates');
 const closeSvg = require('./images/close.svg');
 
-var MSG_SRC = 'lws_client';
-var CONTENT_SRC = 'lws_content';
+var MSG_SRC = 'browser_lib';
+var CONTENT_SRC = 'content';
 var CONTENT_REQ_TIMEOUT = 5000;
 
 var STATUSES = {
@@ -31,7 +31,7 @@ var fmtMessage = (msg, req) => {
 	if (!id && req.meta && req.meta.id) {
 		id = req.meta.id;
 	}
-	msg.meta.id = id || MSG_SRC + '_' + lws.msgId++;
+	msg.meta.id = id || MSG_SRC + '-' + lws.msgId++;
 	msg.meta.src = msg.meta.src || MSG_SRC;
 	if (!msg.type && msg.error) {
 		msg.error = true;
