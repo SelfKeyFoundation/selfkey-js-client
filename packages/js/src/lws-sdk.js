@@ -3,8 +3,8 @@
 const tpl = require('./templates');
 const closeSvg = require('./images/close.svg');
 
-var MSG_SRC = 'lws_client';
-var CONTENT_SRC = 'lws_content';
+var MSG_SRC = 'browser_lib';
+var CONTENT_SRC = 'content';
 var CONTENT_REQ_TIMEOUT = 5000;
 
 var STATUSES = {
@@ -15,7 +15,7 @@ var STATUSES = {
 	ERROR: 4
 };
 
-var extensionId = 'fmmadhehohahcpnjjkbdajimilceilcd';
+var defaultExtensionId = 'fmmadhehohahcpnjjkbdajimilceilcd';
 
 var lws = {
 	msgId: 0,
@@ -47,10 +47,7 @@ lws.init = function initLWS(config) {
 	if (lws.status !== STATUSES.READY) throw new Error('LWS can be initialized only once');
 	lws.status = STATUSES.INITIALIZING;
 	lws.config = config;
-	if (lws.config.website.apiUrl && !lws.config.website.apiUrl.match(/^https?:/)) {
-		let apiUrl = new URL(lws.config.website.apiUrl, lws.config.website.url);
-		config.website.apiUrl = apiUrl.toString();
-	}
+	lws.config.endpoints = lws.config.endpoints || {};
 	initDomElements(config);
 	window.addEventListener('message', handleContentMessage);
 	sendToContent(
@@ -58,7 +55,10 @@ lws.init = function initLWS(config) {
 			type: 'wp_init',
 			payload: {
 				website: config.website,
-				attributes: config.attributes
+				rootEndpoint: config.rootEndpoint,
+				endpoints: config.endpoints,
+				attributes: config.attributes,
+				meta: config.meta
 			}
 		},
 		{},
@@ -105,7 +105,12 @@ function handleContentMessage(evt) {
 		if (msg.payload.token) {
 			var request = new XMLHttpRequest();
 			var body = JSON.stringify(msg.payload);
-			request.open('POST', lws.config.website.apiUrl + '/login', true);
+			let loginUrl = lws.config.endpoints.login || lws.config.rootEndpoint + '/login';
+			if (!loginUrl.match(/^https?:/)) {
+				// TODO: strip slashas
+				loginUrl = `${lws.config.website.url}/${loginUrl}`;
+			}
+			request.open('POST', loginUrl, true);
 			request.onreadystatechange = function() {
 				var redirectTo = msg.payload.redirectTo;
 				if (request.readyState > 3) {
@@ -142,7 +147,7 @@ function resolveDomElements(el) {
 }
 
 function initDomElements(config) {
-	var els = resolveDomElements(config.el);
+	var els = resolveDomElements(config.ui.el);
 	lws.els = els.map(function initLWSForDomElement(el) {
 		return render(el);
 	});
@@ -242,7 +247,7 @@ function renderPopup() {
 }
 
 function initErrorTpl() {
-	return tpl.errorContentHtml({ extensionId });
+	return tpl.errorContentHtml({ extensionId: lws.config.extensionId || defaultExtensionId });
 }
 
 function extensionUiTpl() {
