@@ -35,6 +35,12 @@ const jwtAuthMiddleware = (req, res, next) => {
 	try {
 		let decoded = jwt.verify(auth, JWT_SECRET);
 		req.decodedAuth = decoded;
+		if (!ethUtil.isValidPublic(req.decodedAuth.sub)) {
+			return res.status(400).json({
+				code: 'invalid_token',
+				message: 'Subject should contain a valid public key'
+			});
+		}
 		next();
 	} catch (error) {
 		return res
@@ -50,22 +56,23 @@ const serviceAuthMiddleware = (req, res, next) => {
 			message: 'Challange token is ment only for challange endpoint'
 		});
 	}
-	if (!ethUtil.isValidPublic(req.decodedAuth.sub)) {
-		return res.status(400).json({
-			code: 'invalid_token',
-			message: 'Subject should contain a valid public key'
-		});
-	}
 	next();
 };
 
 const generateChallange = (req, res) => {
+	let publicKey = req.param('publicKey');
+	if (!publicKey || !ethUtil.isValidPublic(publicKey)) {
+		return res
+			.statu(400)
+			.json({ code: 'invalid_public_key', message: 'Invalid public key provided' });
+	}
 	let challange = crypto.randomBytes(48).toString('hex');
-	let jwtToken = jwt.sing({ challange }, JWT_SECRET, { expiresIn: '5' });
+	let jwtToken = jwt.sing({ challange }, JWT_SECRET, { expiresIn: '5m', subject: publicKey });
 	return res.json({ jwt: jwtToken });
 };
 const handleChallangeResponse = (req, res) => {
 	let challange = req.decodedAuth.challange;
+	let publicKey = req.decodedAuth.sub;
 	if (!challange) {
 		return res
 			.status(401)
@@ -75,25 +82,30 @@ const handleChallangeResponse = (req, res) => {
 	if (!signature) {
 		return res.status(400).json({ code: 'no_signature', message: 'No signature provided' });
 	}
-	let publicKey;
+	let calculatedPublicKey;
 	try {
 		const msgHash = ethUtil.hashPersonalMessage(Buffer.from(challange, 'hex'));
 		const sig = ethUtil.fromRpcSig(signature);
 		const signatureRecover = ethUtil.ecrecover(msgHash, sig.v, sig.r, sig.s);
-		publicKey = ethUtil.publicToAddress(signatureRecover, true).toString('hex');
+		calculatedPublicKey = ethUtil.publicToAddress(signatureRecover, true).toString('hex');
 	} catch (err) {
 		return res
 			.status(401)
 			.json({ code: 'invalid_signature', message: 'Invalid signature provided' });
 	}
 
-	if (!publicKey || !ethUtil.isValidPublic(Buffer.from(publicKey, 'hex'))) {
+	if (!calculatedPublicKey || !ethUtil.isValidPublic(Buffer.from(calculatedPublicKey, 'hex'))) {
 		return res
 			.status(401)
 			.json({ code: 'no_public_key', message: "Couldn't derive public key from signature" });
 	}
+	if (calculatedPublicKey !== publicKey) {
+		return res
+			.status(401)
+			.json({ code: 'invalid_signature', message: 'Invalid signature provided' });
+	}
 	let token = jwt.sign({}, JWT_SECRET, { expiresIn: '1h', subject: publicKey });
-	res.json({ jwt: token });
+	return res.json({ jwt: token });
 };
 const createUser = (req, res) => {
 	// TODO: implement with multipart/form data
@@ -151,7 +163,7 @@ const getUserPayload = (req, res) => {
 	return res.send({ token: userToken });
 };
 
-router.get('/auth/challange', generateChallange);
+router.get('/auth/challange/:publicKey', generateChallange);
 router.post('/auth/challange', jwtAuthMiddleware, handleChallangeResponse);
 router.post('/users', jwtAuthMiddleware, serviceAuthMiddleware, upload.any(), createUser);
 router.post('/auth/token', jwtAuthMiddleware, serviceAuthMiddleware, getUserPayload);
