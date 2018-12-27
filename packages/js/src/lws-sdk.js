@@ -107,8 +107,11 @@ function handleContentMessage(evt) {
 			var body = JSON.stringify(msg.payload);
 			let loginUrl = lws.config.endpoints.login || lws.config.rootEndpoint + '/login';
 			if (!loginUrl.match(/^https?:/)) {
-				// TODO: strip slashas
-				loginUrl = `${lws.config.website.url}/${loginUrl}`;
+				let websiteUrl = lws.config.website.url;
+				if (loginUrl.startsWith('/')) loginUrl = loginUrl.substr(1);
+				if (websiteUrl.endsWith('/'))
+					websiteUrl = websiteUrl.substr(0, websiteUrl.length - 1);
+				loginUrl = `${websiteUrl}/${loginUrl}`;
 			}
 			request.open('POST', loginUrl, true);
 			request.onreadystatechange = function() {

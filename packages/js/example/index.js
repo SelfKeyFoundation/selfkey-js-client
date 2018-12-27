@@ -5,12 +5,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const api = require('./api');
-
 const app = express();
+const Users = require('./users');
 
 app.use(middleware(compiler, {}));
 app.use(bodyParser.json({ limit: '300mb' }));
-// app.use(bodyParser.json({ limit: '300mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/v1/selfkey', api);
+app.get('/users', (req, res)=>{
+	res.json(Users.findAll());
+})
 app.listen(process.env.PORT || 3000, () => console.log('dev server is listening on 3000'));

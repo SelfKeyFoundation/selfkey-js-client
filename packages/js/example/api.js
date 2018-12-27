@@ -3,10 +3,9 @@ const Users = require('./users');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const ethUtil = require('eth-util');
+const ethUtil = require('ethereumjs-util');
 const multer = require('multer');
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer();
 const JWT_SECRET = 'SHHH';
 
 const login = (req, res) => {
@@ -16,7 +15,7 @@ const login = (req, res) => {
 	}
 	try {
 		let decoded = jwt.verify(body.token, JWT_SECRET);
-		let user = Users.findById(decoded.subject);
+		let user = Users.findById(+decoded.sub);
 		if (!user) {
 			return res.status(404).json({ redirectTo: '/failure.html?error=No+User' });
 		}
@@ -28,16 +27,24 @@ const login = (req, res) => {
 
 const jwtAuthMiddleware = (req, res, next) => {
 	let auth = req.headers.authorization;
-	if (!auth)
+	if (!auth) {
 		return res
 			.status(400)
 			.json({ code: 'no_auth_token', message: 'Invalid request. No authentication token' });
+	}
+	if (!auth.startsWith('Bearer ')) {
+		return res.status(400).json({
+			code: 'invalid_auth_token',
+			message: 'Subject should contain a valid public key'
+		});
+	}
+	auth = auth.replace(/^Bearer /, '');
 	try {
 		let decoded = jwt.verify(auth, JWT_SECRET);
 		req.decodedAuth = decoded;
-		if (!ethUtil.isValidPublic(req.decodedAuth.sub)) {
+		if (!ethUtil.isValidPublic(Buffer.from(req.decodedAuth.sub, 'hex'))) {
 			return res.status(400).json({
-				code: 'invalid_token',
+				code: 'invalid_auth_token',
 				message: 'Subject should contain a valid public key'
 			});
 		}
@@ -50,30 +57,30 @@ const jwtAuthMiddleware = (req, res, next) => {
 };
 
 const serviceAuthMiddleware = (req, res, next) => {
-	if (req.decodedAuth.challange) {
+	if (req.decodedAuth.challenge) {
 		return res.status(400).json({
 			code: 'invalid_token',
-			message: 'Challange token is ment only for challange endpoint'
+			message: 'Challenge token is ment only for challenge endpoint'
 		});
 	}
 	next();
 };
 
-const generateChallange = (req, res) => {
-	let publicKey = req.param('publicKey');
-	if (!publicKey || !ethUtil.isValidPublic(publicKey)) {
+const generateChallenge = (req, res) => {
+	let publicKey = req.params.publicKey;
+	if (!publicKey || !ethUtil.isValidPublic(Buffer.from(publicKey, 'hex'))) {
 		return res
-			.statu(400)
+			.status(400)
 			.json({ code: 'invalid_public_key', message: 'Invalid public key provided' });
 	}
-	let challange = crypto.randomBytes(48).toString('hex');
-	let jwtToken = jwt.sing({ challange }, JWT_SECRET, { expiresIn: '5m', subject: publicKey });
+	let challenge = crypto.randomBytes(48).toString('hex');
+	let jwtToken = jwt.sign({ challenge }, JWT_SECRET, { expiresIn: '5m', subject: publicKey });
 	return res.json({ jwt: jwtToken });
 };
-const handleChallangeResponse = (req, res) => {
-	let challange = req.decodedAuth.challange;
+const handleChallengeResponse = (req, res) => {
+	let challenge = req.decodedAuth.challenge;
 	let publicKey = req.decodedAuth.sub;
-	if (!challange) {
+	if (!challenge) {
 		return res
 			.status(401)
 			.json({ code: 'invalid_auth_token', message: 'Invalid autentication token' });
@@ -84,10 +91,9 @@ const handleChallangeResponse = (req, res) => {
 	}
 	let calculatedPublicKey;
 	try {
-		const msgHash = ethUtil.hashPersonalMessage(Buffer.from(challange, 'hex'));
+		const msgHash = ethUtil.hashPersonalMessage(Buffer.from(challenge));
 		const sig = ethUtil.fromRpcSig(signature);
-		const signatureRecover = ethUtil.ecrecover(msgHash, sig.v, sig.r, sig.s);
-		calculatedPublicKey = ethUtil.publicToAddress(signatureRecover, true).toString('hex');
+		calculatedPublicKey = ethUtil.ecrecover(msgHash, sig.v, sig.r, sig.s).toString('hex');
 	} catch (err) {
 		return res
 			.status(401)
@@ -108,44 +114,62 @@ const handleChallangeResponse = (req, res) => {
 	return res.json({ jwt: token });
 };
 const createUser = (req, res) => {
-	// TODO: implement with multipart/form data
-	res.satus(400).json({ code: 'not_implemented' });
+	let attributes = req.body.attributes;
 
-	// const { body } = req;
-	// if (!body.publicKey) {
-	// 	return res.status(400).json({
-	// 		code: 'publick_key_missing',
-	// 		message: 'No public key in auth request'
-	// 	});
-	// }
-	// let user = Users.findByPublicKey(body.publicKey);
+	try {
+		attributes = JSON.parse(attributes);
+	} catch (error) {
+		return res.status(400).json({
+			code: 'invalid_attributes',
+			message: 'Attributes field must be a json string'
+		});
+	}
 
-	// if (body.attributes && body.attributes.length) {
-	// 	let data = body.attributes.reduce((acc, curr) => {
-	// 		acc[curr.key] = curr.data && curr.data.value ? curr.data.value : curr.data;
-	// 		return acc;
-	// 	}, {});
+	if (!attributes || !attributes.length) {
+		return res.status(400).json({ code: 'no_attributes', message: 'No attributes provided' });
+	}
 
-	// 	if (user) {
-	// 		console.log('updating user');
-	// 		user = Users.update(user.id, data);
-	// 	} else {
-	// 		user = Users.create(data, body.publicKey);
-	// 	}
-	// }
+	let documents = req.files.map(f => {
+		let doc = {
+			mimeType: f.mimeType,
+			size: f.size,
+			content: f.buffer
+		};
+		let id = f.fieldname.match(/^\$document-([0-9]*)$/);
+		if (id) id = +id[0];
+		doc.id = id;
+		return doc;
+	});
 
-	// if (!user) {
-	// 	console.log({
-	// 		code: 'could_not_authorize',
-	// 		message: 'Could not authorize user'
-	// 	});
-	// 	return res.status(401).json({
-	// 		code: 'could_not_authorize',
-	// 		message: 'Could not authorize user'
-	// 	});
-	// }
-	// console.log({ token: user.id });
-	// return res.json({ token: user.id });
+	attributes = attributes.map(attr => {
+		let attrDocs = attr.documents
+			.map(id => {
+				let found = documents.filter(doc => doc.id === id);
+				return found.length ? found[0] : null;
+			})
+			.filter(doc => !!doc);
+		return { ...attr, documents: attrDocs };
+	});
+
+	let publicKey = req.decodedAuth.sub;
+
+	let user = Users.findByPublicKey(publicKey);
+
+	if (user) {
+		console.log('updating user');
+		user = Users.update(user.id, { attributes });
+	} else {
+		user = Users.create({ attributes }, publicKey);
+	}
+
+	if (!user) {
+		return res.status(400).json({
+			code: 'could_not_create',
+			message: 'Could not create user'
+		});
+	}
+
+	return res.status(201).send();
 };
 const getUserPayload = (req, res) => {
 	let publicKey = req.decodedAuth.sub;
@@ -158,15 +182,128 @@ const getUserPayload = (req, res) => {
 		});
 	}
 
-	let userToken = jwt.sign({}, JWT_SECRET, { subject: user.id });
+	let userToken = jwt.sign({}, JWT_SECRET, { subject: '' + user.id });
 
 	return res.send({ token: userToken });
 };
 
-router.get('/auth/challange/:publicKey', generateChallange);
-router.post('/auth/challange', jwtAuthMiddleware, handleChallangeResponse);
+router.get('/auth/challenge/:publicKey', generateChallenge);
+router.post('/auth/challenge', jwtAuthMiddleware, handleChallengeResponse);
 router.post('/users', jwtAuthMiddleware, serviceAuthMiddleware, upload.any(), createUser);
-router.post('/auth/token', jwtAuthMiddleware, serviceAuthMiddleware, getUserPayload);
+router.get('/auth/token', jwtAuthMiddleware, serviceAuthMiddleware, getUserPayload);
 router.post('/login', login);
+router.use((error, req, res, next) => {
+	console.error(error);
+	return res.status(500).json({
+		code: 'unhandled_error',
+		message: error.message
+	});
+});
 
 module.exports = router;
+
+// let attrs = [
+// 	{
+// 		id: 'http://platform.selfkey.org/schema/attribute/first-name.json',
+// 		data: 'Maxim',
+// 		schema: {
+// 			$id: 'http://platform.selfkey.org/schema/attribute/first-name.json',
+// 			$schema: 'http://platform.selfkey.org/schema/identity-attribute.json',
+// 			identityAttribute: true,
+// 			identityAttributeRepository: 'http://platform.selfkey.org/repository.json',
+// 			title: 'First Name',
+// 			description: "An individual's first (given) name.",
+// 			type: 'string'
+// 		},
+// 		documents: []
+// 	},
+// 	{
+// 		id: 'http://platform.selfkey.org/schema/attribute/last-name.json',
+// 		data: 'Kovalov',
+// 		schema: {
+// 			$id: 'http://platform.selfkey.org/schema/attribute/last-name.json',
+// 			$schema: 'http://platform.selfkey.org/schema/identity-attribute.json',
+// 			identityAttribute: true,
+// 			identityAttributeRepository: 'http://platform.selfkey.org/repository.json',
+// 			title: 'Last Name',
+// 			description: "An individual's last (family) name.",
+// 			type: 'string'
+// 		},
+// 		documents: []
+// 	},
+// 	{
+// 		id: 'http://platform.selfkey.org/schema/attribute/national-id.json',
+// 		data: { front: '$document-1', back: '$document-7' },
+// 		schema: {
+// 			$id: 'http://platform.selfkey.org/schema/attribute/national-id.json',
+// 			$schema: 'http://platform.selfkey.org/schema/identity-attribute.json',
+// 			identityAttribute: true,
+// 			identityAttributeRepository: 'http://platform.selfkey.org/repository.json',
+// 			title: 'National ID',
+// 			description: 'A copy of a national identification document.',
+// 			type: 'object',
+// 			properties: {
+// 				front: {
+// 					title: 'Front image',
+// 					$schema: 'http://json-schema.org/draft-07/schema',
+// 					$id: 'http://platform.selfkey.org/schema/document/image.json',
+// 					type: 'object',
+// 					format: 'file',
+// 					properties: {
+// 						mimeType: {
+// 							type: 'string',
+// 							enum: ['image/jpg', 'image/png', 'application/pdf']
+// 						},
+// 						size: { type: 'integer', max: 50000000 },
+// 						content: { type: 'string' }
+// 					},
+// 					required: ['mimeType', 'size', 'content']
+// 				},
+// 				back: {
+// 					title: 'Back image',
+// 					$schema: 'http://json-schema.org/draft-07/schema',
+// 					$id: 'http://platform.selfkey.org/schema/document/image.json',
+// 					type: 'object',
+// 					format: 'file',
+// 					properties: {
+// 						mimeType: {
+// 							type: 'string',
+// 							enum: ['image/jpg', 'image/png', 'application/pdf']
+// 						},
+// 						size: { type: 'integer', max: 50000000 },
+// 						content: { type: 'string' }
+// 					},
+// 					required: ['mimeType', 'size', 'content']
+// 				},
+// 				additional: {
+// 					type: 'array',
+// 					title: 'Additional images',
+// 					items: {
+// 						$schema: 'http://json-schema.org/draft-07/schema',
+// 						$id: 'http://platform.selfkey.org/schema/document/image.json',
+// 						type: 'object',
+// 						title: 'Image',
+// 						format: 'file',
+// 						properties: {
+// 							mimeType: {
+// 								type: 'string',
+// 								enum: ['image/jpg', 'image/png', 'application/pdf']
+// 							},
+// 							size: { type: 'integer', max: 50000000 },
+// 							content: { type: 'string' }
+// 						},
+// 						required: ['mimeType', 'size', 'content']
+// 					}
+// 				}
+// 			},
+// 			required: ['front']
+// 		},
+// 		documents: [1, 7]
+// 	}
+// ];
+// { fieldname: '$document-1',
+// originalname: 'Screen Shot 2018-12-26 at 14.45.07.png',
+// encoding: '7bit',
+// mimetype: 'image/png',
+// buffer: <Buffer 30 30 30 30 30>,
+// size: 5 },

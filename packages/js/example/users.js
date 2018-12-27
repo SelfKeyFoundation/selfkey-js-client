@@ -15,9 +15,6 @@ exports.findById = id => {
 };
 
 exports.create = (data, publicKey) => {
-	if (!data.email) {
-		return null;
-	}
 	let user = Object.assign({}, data, { id: ++runningId });
 	user.publicKeys = [publicKey];
 	allIds.push(user.id);
@@ -29,4 +26,8 @@ exports.update = (id, newData) => {
 	if (!byId[id]) return null;
 	byId[id] = Object.assign({}, byId[id], newData, { id });
 	return byId[id];
+};
+
+exports.findAll = () => {
+	return allIds.map(id => byId[id]);
 };
