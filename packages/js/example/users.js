@@ -18,18 +18,6 @@ exports.findById = id => {
 
 exports.create = (data, publicKey) => {
 	let user = Object.assign({}, data, { id: ++runningId });
-	if (data.attributes) {
-		data.attributes = data.attributes.map(attr => {
-			attr.documents = attr.documents.map(doc => {
-				let newDoc = Documents.create(doc);
-				let link = `${HOST}/documents/${newDoc.id}`;
-				doc.localId = newDoc.id;
-				doc.content = link;
-				return doc;
-			});
-			return attr;
-		});
-	}
 	user.publicKeys = [publicKey];
 	allIds.push(user.id);
 	byId[user.id] = user;

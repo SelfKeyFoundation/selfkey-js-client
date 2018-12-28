@@ -10,6 +10,8 @@
 		<p><a href="/documents" target="_blank">View all documents</a></p>
 		<h5>Example:</h5>
 		<div class="lwsClient"></div>
+		<br /><br />
+		<div id="user-token"></div>
 	</body>
 	<script src="/lws.js"></script>
 	<script>
@@ -44,14 +46,22 @@
 			onAuthResponse: function(err, res, ui) {
 				console.log('OnAuthResponse', err, res, ui);
 				if (err) {
-					alert('Error! ' + err.message);
-					return;
+					document.getElementById(
+						'user-token'
+					).innerHTML = `UserPayload Error: ${JSON.stringify(err)}`;
+				} else {
+					document.getElementById(
+						'user-token'
+					).innerHTML = `UserPayload: ${JSON.stringify(res)}`;
 				}
-				alert(JSON.stringify(res));
+
 				if (!ui) return;
 				setTimeout(() => {
+					ui.popup.content.innerHTML = '<b>Closing popup</b>';
+				}, 1000);
+				setTimeout(() => {
 					ui.popup.hide();
-				}, 5000);
+				}, 3000);
 			}
 		});
 	</script>

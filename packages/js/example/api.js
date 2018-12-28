@@ -1,5 +1,6 @@
 const express = require('express');
 const Users = require('./users');
+const Documents = require('./documents');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -7,6 +8,77 @@ const ethUtil = require('ethereumjs-util');
 const multer = require('multer');
 const upload = multer();
 const JWT_SECRET = 'SHHH';
+const HOST = `http://localhost:${process.env.PORT}`;
+
+const denormalizeDocumentsSchema = (typeSchema, value, documents = [], maxDepth = 10) => {
+	if (maxDepth < 0) {
+		return { value, documents };
+	}
+
+	documents = [...documents];
+	if (typeSchema.format === 'file') {
+		if (!value || typeof value !== 'string') return { value, documents };
+		const refIdRegexp = /#ref{(document[0-9]+).id}$/;
+		const idRegexp = /\$document-([0-9]+)$/;
+
+		let id = value.match(refIdRegexp);
+		if (!id) id = value.match(idRegexp);
+		if (id && id.length) {
+			id = id[1];
+		}
+		if (!id) return { value: null, documents };
+		let found = documents.filter(doc => doc.id === +id || doc['#id'] === id);
+		let filtered = documents.filter(doc => doc.id !== +id && doc['#id'] !== id);
+
+		value = null;
+
+		if (found.length) {
+			value = found[0];
+			delete value['#id'];
+		}
+
+		return { value, documents: filtered };
+	}
+
+	if (typeSchema.type === 'object' && typeof value === 'object') {
+		if (!typeSchema.properties) return { value, documents };
+		return Object.keys(typeSchema.properties).reduce(
+			(acc, key) => {
+				if (!value.hasOwnProperty(key)) {
+					return acc;
+				}
+				let denormalized = denormalizeDocumentsSchema(
+					typeSchema.properties[key],
+					value[key],
+					acc.documents,
+					maxDepth - 1
+				);
+				acc.value[key] = denormalized.value;
+				acc.documents = denormalized.documents;
+				return acc;
+			},
+			{ value: {}, documents }
+		);
+	}
+
+	if (typeSchema.type === 'array' && Array.isArray(value)) {
+		return value.reduce(
+			(acc, itm) => {
+				let normalized = denormalizeDocumentsSchema(
+					typeSchema.items,
+					itm,
+					acc.documents,
+					maxDepth - 1
+				);
+				acc.value.push(normalized.value);
+				acc.documents = normalized.documents;
+				return acc;
+			},
+			{ value: [], documents }
+		);
+	}
+	return { value, documents };
+};
 
 const login = (req, res) => {
 	const { body } = req;
@@ -140,6 +212,14 @@ const createUser = (req, res) => {
 		return doc;
 	});
 
+	documents = documents.map(doc => {
+		let newDoc = Documents.create(doc);
+		let link = `${HOST}/documents/${newDoc.id}`;
+		doc.localId = newDoc.id;
+		doc.content = link;
+		return doc;
+	});
+
 	attributes = attributes.map(attr => {
 		console.log('XXX', attr.documents);
 		let attrDocs = attr.documents
@@ -148,7 +228,9 @@ const createUser = (req, res) => {
 				return found.length ? found[0] : null;
 			})
 			.filter(doc => !!doc);
-		return { ...attr, documents: attrDocs };
+		attr = { ...attr, documents: attrDocs };
+		let { value } = denormalizeDocumentsSchema(attr.schema, attr.data, attrDocs);
+		return { id: attr.id, value };
 	});
 
 	let publicKey = req.decodedAuth.sub;

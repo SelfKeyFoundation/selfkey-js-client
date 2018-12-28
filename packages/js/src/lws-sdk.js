@@ -88,6 +88,7 @@ function handleContentMessage(evt) {
 	var msg = evt.data;
 	if (window !== evt.source) return;
 	if (!msg || !msg.type || !msg.meta || msg.meta.src !== CONTENT_SRC) return;
+	console.log('client: msg from content', msg);
 	if (msg.meta.id && lws.reqs[msg.meta.id]) {
 		return lws.reqs[msg.meta.id].handleRes(msg);
 	}
