@@ -221,7 +221,6 @@ const createUser = (req, res) => {
 	});
 
 	attributes = attributes.map(attr => {
-		console.log('XXX', attr.documents);
 		let attrDocs = attr.documents
 			.map(id => {
 				let found = documents.filter(doc => doc.id === id);
