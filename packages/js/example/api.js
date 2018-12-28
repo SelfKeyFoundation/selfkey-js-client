@@ -131,17 +131,17 @@ const createUser = (req, res) => {
 
 	let documents = req.files.map(f => {
 		let doc = {
-			mimeType: f.mimeType,
+			mimeType: f.mimetype,
 			size: f.size,
 			content: f.buffer
 		};
 		let id = f.fieldname.match(/^\$document-([0-9]*)$/);
-		if (id) id = +id[0];
-		doc.id = id;
+		if (id) doc.id = +id[1];
 		return doc;
 	});
 
 	attributes = attributes.map(attr => {
+		console.log('XXX', attr.documents);
 		let attrDocs = attr.documents
 			.map(id => {
 				let found = documents.filter(doc => doc.id === id);

@@ -94,9 +94,9 @@ function handleContentMessage(evt) {
 	if (msg.type === 'wp_auth') {
 		if (lws.config && typeof lws.config.onAuthResponse === 'function') {
 			if (msg.error) {
-				return lws.config.onAuthResponse(msg.payload);
+				return lws.config.onAuthResponse(msg.payload, null, lws.activeComponent);
 			}
-			return lws.config.onAuthResponse(null, msg.payload);
+			return lws.config.onAuthResponse(null, msg.payload, lws.activeComponent);
 		}
 		if (msg.error) {
 			console.error('lws-sdk:', msg.payload);
@@ -151,17 +151,18 @@ function resolveDomElements(el) {
 
 function initDomElements(config) {
 	var els = resolveDomElements(config.ui.el);
-	lws.els = els.map(function initLWSForDomElement(el) {
+	lws.components = els.map(function initLWSForDomElement(el) {
 		return render(el);
 	});
 }
 
 function teardownDomElements() {
-	if (!lws.els) return;
-	lws.els.forEach(function teardownDomElement(el) {
-		el.destroy();
+	lws.activeComponent = null;
+	if (!lws.components) return;
+	lws.components.forEach(function teardownDomElement(component) {
+		component.destroy();
 	});
-	lws.els = [];
+	lws.components = [];
 }
 
 function render(container) {
@@ -188,19 +189,24 @@ function render(container) {
 	lwsButton.el.addEventListener('click', function(evt) {
 		evt.preventDefault();
 		var html;
-
+		if (lws.activeComponent) {
+			lws.activeComponent.popup.hide();
+			lws.activeComponent = null;
+		}
 		if (lws.status !== STATUSES.INITIALIZED) {
 			html = initErrorTpl();
 		} else {
 			html = extensionUiTpl();
 		}
 		popup.show(html);
+
+		lws.activeComponent = component;
 	});
 
 	component.destroy = function destroy() {
 		this.container.innerHTML = '';
 	};
-	return el;
+	return component;
 }
 
 function renderLWSButton() {
@@ -243,7 +249,12 @@ function renderPopup() {
 	};
 
 	close.addEventListener('click', function handleClose() {
-		component.hide();
+		if (lws.activeComponent.popup !== component) {
+			component.hide();
+			return;
+		}
+		lws.activeComponent.popup.hide();
+		lws.activeComponent = null;
 	});
 
 	return component;

@@ -6,6 +6,8 @@
 	<body>
 		<p>This is an example with client calling 'onAuthResponse' callback</p>
 		<p>To see an example without a callback please go <a href="./index.html">here</a></p>
+		<p><a href="/users" target="_blank">View all users</a></p>
+		<p><a href="/documents" target="_blank">View all documents</a></p>
 		<h5>Example:</h5>
 		<div class="lwsClient"></div>
 	</body>
@@ -13,38 +15,43 @@
 	<script>
 		lws.init({
 			ui: {
-				el: '.lwsClient',
+				el: '.lwsClient'
 			},
 			website: {
 				name: 'LWS Example',
-				url: 'http://localhost:3000/',
-				termsUrl: 'http://localhost:3000/terms.html',
-				policyUrl: 'http://localhost:3000/policy.html',
+				url: 'http://localhost:3030/',
+				termsUrl: 'http://localhost:3030/terms.html',
+				policyUrl: 'http://localhost:3030/policy.html'
 			},
 			rootEndpoint: '/api/v1/selfkey',
 			attributes: [
 				{
-					key: "first_name",
-					label: "First Name",
-					attribute: "http://platform.selfkey.org/schema/attribute/first-name.json"
+					key: 'first_name',
+					label: 'First Name',
+					attribute: 'http://platform.selfkey.org/schema/attribute/first-name.json'
 				},
 				{
-					key: "last_name",
-					label: "Last Name",
-					attribute: "http://platform.selfkey.org/schema/attribute/last-name.json"
+					key: 'last_name',
+					label: 'Last Name',
+					attribute: 'http://platform.selfkey.org/schema/attribute/last-name.json'
 				},
 				{
-					key: "email",
-					label: "Email"
-				},
+					key: 'email',
+					label: 'Email',
+					attribute: 'http://platform.selfkey.org/schema/attribute/email.json'
+				}
 			],
-			onAuthResponse: function (err, res) {
-				console.log('OnAuthResponse', err, res);
+			onAuthResponse: function(err, res, ui) {
+				console.log('OnAuthResponse', err, res, ui);
 				if (err) {
 					alert('Error! ' + err.message);
 					return;
 				}
 				alert(JSON.stringify(res));
+				if (!ui) return;
+				setTimeout(() => {
+					ui.popup.hide();
+				}, 5000);
 			}
 		});
 	</script>
