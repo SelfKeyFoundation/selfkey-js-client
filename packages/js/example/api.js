@@ -9,6 +9,7 @@ const multer = require('multer');
 const upload = multer();
 const JWT_SECRET = 'SHHH';
 const HOST = `http://localhost:${process.env.PORT}`;
+const cors = require('cors');
 
 const denormalizeDocumentsSchema = (typeSchema, value, documents = [], maxDepth = 10) => {
 	if (maxDepth < 0) {
@@ -272,7 +273,8 @@ router.get('/auth/challenge/:publicKey', generateChallenge);
 router.post('/auth/challenge', jwtAuthMiddleware, handleChallengeResponse);
 router.post('/users', jwtAuthMiddleware, serviceAuthMiddleware, upload.any(), createUser);
 router.get('/auth/token', jwtAuthMiddleware, serviceAuthMiddleware, getUserPayload);
-router.post('/login', login);
+router.options('/login', cors());
+router.post('/login', cors(), login);
 router.use((error, req, res, next) => {
 	console.error(error);
 	return res.status(500).json({

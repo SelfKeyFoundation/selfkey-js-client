@@ -26,16 +26,9 @@ exports.create = (data, publicKey) => {
 
 exports.update = (id, data) => {
 	if (!byId[id]) return null;
-	let oldAttributes = byId[id].attributes;
-	if (oldAttributes) {
-		oldAttributes.forEach(attr => {
-			attr.documents.forEach(doc => {
-				Documents.delete(doc.localId);
-			});
-		});
-	}
 	if (data.attributes) {
 		data.attributes = data.attributes.map(attr => {
+			if (!attr.documents) return attr;
 			attr.documents = attr.documents.map(doc => {
 				let newDoc = Documents.create(doc);
 				let link = `${HOST}/documents/${newDoc.id}`;
