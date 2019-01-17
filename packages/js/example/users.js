@@ -1,6 +1,8 @@
+const Documents = require('./documents');
 const allIds = [];
 const byId = {};
 let runningId = 0;
+const HOST = `http://localhost:${process.env.PORT}`;
 
 exports.findByPublicKey = publicKey => {
 	let found = allIds
@@ -15,9 +17,6 @@ exports.findById = id => {
 };
 
 exports.create = (data, publicKey) => {
-	if (!data.email) {
-		return null;
-	}
 	let user = Object.assign({}, data, { id: ++runningId });
 	user.publicKeys = [publicKey];
 	allIds.push(user.id);
@@ -25,8 +24,25 @@ exports.create = (data, publicKey) => {
 	return user;
 };
 
-exports.update = (id, newData) => {
+exports.update = (id, data) => {
 	if (!byId[id]) return null;
-	byId[id] = Object.assign({}, byId[id], newData, { id });
+	if (data.attributes) {
+		data.attributes = data.attributes.map(attr => {
+			if (!attr.documents) return attr;
+			attr.documents = attr.documents.map(doc => {
+				let newDoc = Documents.create(doc);
+				let link = `${HOST}/documents/${newDoc.id}`;
+				doc.localId = newDoc.id;
+				doc.content = link;
+				return doc;
+			});
+			return attr;
+		});
+	}
+	byId[id] = Object.assign({}, byId[id], data, { id });
 	return byId[id];
+};
+
+exports.findAll = () => {
+	return allIds.map(id => byId[id]);
 };

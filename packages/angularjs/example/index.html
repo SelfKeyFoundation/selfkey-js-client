@@ -11,7 +11,7 @@
 <body ng-app="lwsExample">
 	<h1>Angular.js Integration Example</h1>
 	<div ng-controller="login">
-		<lws-button website="website" attributes="attributes" on-auth-response="onAuthResponse(err,res)"></lws-button>
+		<lws-button website="website" attributes="attributes" root-endpoint="rootEndpoint" on-auth-response="onAuthResponse(err,res,ui)"></lws-button>
 	</div>
 	<script src="http://unpkg.com/angular@1.6.10/angular.min.js"></script>
 	<script src="./lws-angularjs-client.js"></script>
@@ -20,11 +20,11 @@
 			.controller('login', ['$scope', ($scope) => {
 				$scope.website = {
 					name: 'LWS Example',
-					url: 'http://localhost:3000/',
-					termsUrl: 'http://localhost:3000/terms.html',
-					policyUrl: 'http://localhost:3000/policy.html',
-					apiUrl: '/api/v1/selfkey',
+					url: 'http://localhost:3031/',
+					termsUrl: 'http://localhost:3031/terms.html',
+					policyUrl: 'http://localhost:3031/policy.html',
 				};
+				$scope.rootEndpoint = 'http://localhost:3030/api/v1/selfkey',
 				$scope.attributes = [
 					{
 						key: "first_name",
@@ -45,8 +45,8 @@
 						label: "National ID Selfie"
 					}
 				];
-				$scope.onAuthResponse = (err, res) => {
-					console.log('OnAuthResponse', err, res);
+				$scope.onAuthResponse = (err, res, ui) => {
+					console.log('OnAuthResponse', err, res, ui);
 				}
 			}]);
 	</script>

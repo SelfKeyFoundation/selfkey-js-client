@@ -11,7 +11,7 @@
 <body>
 	<h1>Vue.js Integration Example</h1>
 	<div id="root">
-		<lws-button v-bind:website="website" v-bind:attributes="attributes"></lws-button>
+		<lws-button v-bind:website="website" v-bind:attributes="attributes" v-bind:root-endpoint="rootEndpoint"></lws-button>
 	</div>
 	<script src="http://unpkg.com/vue@2.5.17/dist/vue.js"></script>
 	<script src="./lws-vue-client.js"></script>
@@ -21,11 +21,11 @@
 			data: {
 				website: {
 					name: 'LWS Example',
-					url: 'http://localhost:3000/',
-					termsUrl: 'http://localhost:3000/terms.html',
-					policyUrl: 'http://localhost:3000/policy.html',
-					apiUrl: '/api/v1/selfkey',
+					url: 'http://localhost:3033/',
+					termsUrl: 'http://localhost:3030/terms.html',
+					policyUrl: 'http://localhost:3030/policy.html'
 				},
+				rootEndpoint: 'http://localhost:3030/api/v1/selfkey',
 				attributes: [
 					{
 						key: "first_name",

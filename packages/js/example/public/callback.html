@@ -1,53 +1,68 @@
 <html>
+	<head>
+		<title>Callback | LWS integration example</title>
+	</head>
 
-<head>
-	<title>Callback | LWS integration example</title>
-</head>
+	<body>
+		<p>This is an example with client calling 'onAuthResponse' callback</p>
+		<p>To see an example without a callback please go <a href="./index.html">here</a></p>
+		<p><a href="/users" target="_blank">View all users</a></p>
+		<p><a href="/documents" target="_blank">View all documents</a></p>
+		<h5>Example:</h5>
+		<div class="lwsClient"></div>
+		<br /><br />
+		<div id="user-token"></div>
+	</body>
+	<script src="/lws.js"></script>
+	<script>
+		lws.init({
+			ui: {
+				el: '.lwsClient'
+			},
+			website: {
+				name: 'LWS Example',
+				url: 'http://localhost:3030/',
+				termsUrl: 'http://localhost:3030/terms.html',
+				policyUrl: 'http://localhost:3030/policy.html'
+			},
+			rootEndpoint: '/api/v1/selfkey',
+			attributes: [
+				{
+					key: 'first_name',
+					label: 'First Name',
+					attribute: 'http://platform.selfkey.org/schema/attribute/first-name.json'
+				},
+				{
+					key: 'last_name',
+					label: 'Last Name',
+					attribute: 'http://platform.selfkey.org/schema/attribute/last-name.json'
+				},
+				{
+					key: 'email',
+					label: 'Email',
+					attribute: 'http://platform.selfkey.org/schema/attribute/email.json'
+				}
+			],
+			onAuthResponse: function(err, res, ui) {
+				console.log('OnAuthResponse', err, res, ui);
+				if (err) {
+					document.getElementById(
+						'user-token'
+					).innerHTML = `UserPayload Error: ${JSON.stringify(err)}`;
+				} else {
+					document.getElementById(
+						'user-token'
+					).innerHTML = `UserPayload: ${JSON.stringify(res)}`;
+				}
 
-<body>
-	<p>This is an example with client calling 'onAuthResponse' callback</p>
-	<p>To see an example without a callback please go
-		<a href="./index.html">here</a>
-	</p>
-	<h5>Example:</h5>
-	<div class="lwsClient"></div>
-</body>
-<script src="/lws.js"></script>
-<script>
-	lws.init({
-		el: '.lwsClient',
-		website: {
-			name: 'LWS Example',
-			url: 'http://localhost:3000/',
-			termsUrl: 'http://localhost:3000/terms.html',
-			policyUrl: 'http://localhost:3000/policy.html',
-			apiUrl: '/api/v1/selfkey',
-		},
-		attributes: [
-			{
-				key: "first_name",
-				label: "First Name",
-				attribute: "http://platform.selfkey.org/schema/attribute/first-name.json"
-			},
-			{
-				key: "last_name",
-				label: "Last Name",
-				attribute: "http://platform.selfkey.org/schema/attribute/last-name.json"
-			},
-			{
-				key: "email",
-				label: "Email"
-			},
-		],
-		onAuthResponse: function (err, res) {
-			console.log('OnAuthResponse', err, res);
-			if (err) {
-				alert('Error! ' + err.message);
-				return;
+				if (!ui) return;
+				setTimeout(() => {
+					ui.popup.content.innerHTML = '<b>Closing popup</b>';
+				}, 1000);
+				setTimeout(() => {
+					ui.popup.hide();
+				}, 3000);
 			}
-			alert(JSON.stringify(res));
-		}
-	});
-</script>
-
+		});
+	</script>
 </html>

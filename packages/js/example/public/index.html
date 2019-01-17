@@ -1,49 +1,46 @@
 <html>
+	<head>
+		<title>LWS integration example</title>
+	</head>
 
-<head>
-	<title>LWS integration example</title>
-</head>
-
-<body>
-	<p>This is an example with client lib automatically calling to '/login' api endpoint.</p>
-	<p>To see an example with callback please go
-		<a href="./callback.html">here</a>
-	</p>
-	<h5>Example:</h5>
-	<div class="lwsClient"></div>
-</body>
-<script src="/lws.js"></script>
-<script>
-	lws.init({
-		el: '.lwsClient',
-		website: {
-			name: 'LWS Example',
-			url: 'http://localhost:3000/',
-			termsUrl: 'http://localhost:3000/terms.html',
-			policyUrl: 'http://localhost:3000/policy.html',
-			apiUrl: '/api/v1/selfkey',
-		},
-		attributes: [
-			{
-				key: "first_name",
-				label: "First Name",
-				attribute: "http://platform.selfkey.org/schema/attribute/first-name.json"
+	<body>
+		<p>This is an example with client lib automatically calling to '/login' api endpoint.</p>
+		<p>To see an example with callback please go <a href="./callback.html">here</a></p>
+		<p><a href="/users" target="_blank">View all users</a></p>
+		<p><a href="/documents" target="_blank">View all documents</a></p>
+		<h5>Example:</h5>
+		<div class="lwsClient"></div>
+	</body>
+	<script src="/lws.js"></script>
+	<script>
+		lws.init({
+			ui: {
+				el: '.lwsClient'
 			},
-			{
-				key: "last_name",
-				label: "Last Name",
-				attribute: "http://platform.selfkey.org/schema/attribute/last-name.json"
+			website: {
+				name: 'LWS Example',
+				url: 'http://localhost:3030/',
+				termsUrl: 'http://localhost:3030/terms.html',
+				policyUrl: 'http://localhost:3030/policy.html'
 			},
-			{
-				key: "email",
-				label: "Email"
-			},
-			{
-				key: "id_selfie",
-				label: "National ID Selfie"
-			}
-		],
-	});
-</script>
-
+			rootEndpoint: '/api/v1/selfkey',
+			attributes: [
+				{
+					key: 'first_name',
+					label: 'First Name',
+					attribute: 'http://platform.selfkey.org/schema/attribute/first-name.json'
+				},
+				{
+					key: 'last_name',
+					label: 'Last Name',
+					attribute: 'http://platform.selfkey.org/schema/attribute/last-name.json'
+				},
+				{
+					key: 'national_id',
+					label: 'National ID',
+					attribute: 'http://platform.selfkey.org/schema/attribute/national-id.json'
+				}
+			]
+		});
+	</script>
 </html>

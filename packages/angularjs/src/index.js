@@ -8,18 +8,26 @@ angular.module('lwsSdk', []).directive('lwsButton', [
 			transclude: true,
 			scope: {
 				attributes: '=',
+				rootEndpoint: '=',
+				endpoints: '=',
+				extensionId: '=',
 				website: '=',
+				meta: '=',
 				onAuthResponse: '&'
 			},
 
-			link: (scope, element, attrs) => {
-				const handleAuthResponce = (err, res) => {
-					scope.onAuthResponse({ err, res });
+			link: (scope, element) => {
+				const handleAuthResponce = (err, res, ui) => {
+					scope.onAuthResponse({ err, res, ui });
 				};
 				lws.init({
-					el: angular.element(element)[0],
+					ui: { el: angular.element(element)[0] },
 					attributes: scope.attributes,
 					website: scope.website,
+					extensionId: scope.extensionId,
+					rootEndpoint: scope.rootEndpoint,
+					endpoints: scope.endpoints,
+					meta: scope.meta,
 					onAuthResponse: handleAuthResponce
 				});
 				scope.$on('$destroy', () => {

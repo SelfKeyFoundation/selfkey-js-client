@@ -3,8 +3,8 @@
 const tpl = require('./templates');
 const closeSvg = require('./images/close.svg');
 
-var MSG_SRC = 'lws_client';
-var CONTENT_SRC = 'lws_content';
+var MSG_SRC = 'browser_lib';
+var CONTENT_SRC = 'content';
 var CONTENT_REQ_TIMEOUT = 5000;
 
 var STATUSES = {
@@ -15,7 +15,7 @@ var STATUSES = {
 	ERROR: 4
 };
 
-var extensionId = 'fmmadhehohahcpnjjkbdajimilceilcd';
+var defaultExtensionId = 'fmmadhehohahcpnjjkbdajimilceilcd';
 
 var lws = {
 	msgId: 0,
@@ -47,10 +47,7 @@ lws.init = function initLWS(config) {
 	if (lws.status !== STATUSES.READY) throw new Error('LWS can be initialized only once');
 	lws.status = STATUSES.INITIALIZING;
 	lws.config = config;
-	if (lws.config.website.apiUrl && !lws.config.website.apiUrl.match(/^https?:/)) {
-		let apiUrl = new URL(lws.config.website.apiUrl, lws.config.website.url);
-		config.website.apiUrl = apiUrl.toString();
-	}
+	lws.config.endpoints = lws.config.endpoints || {};
 	initDomElements(config);
 	window.addEventListener('message', handleContentMessage);
 	sendToContent(
@@ -58,7 +55,10 @@ lws.init = function initLWS(config) {
 			type: 'wp_init',
 			payload: {
 				website: config.website,
-				attributes: config.attributes
+				rootEndpoint: config.rootEndpoint,
+				endpoints: config.endpoints,
+				attributes: config.attributes,
+				meta: config.meta
 			}
 		},
 		{},
@@ -88,15 +88,16 @@ function handleContentMessage(evt) {
 	var msg = evt.data;
 	if (window !== evt.source) return;
 	if (!msg || !msg.type || !msg.meta || msg.meta.src !== CONTENT_SRC) return;
+	console.log('client: msg from content', msg);
 	if (msg.meta.id && lws.reqs[msg.meta.id]) {
 		return lws.reqs[msg.meta.id].handleRes(msg);
 	}
 	if (msg.type === 'wp_auth') {
 		if (lws.config && typeof lws.config.onAuthResponse === 'function') {
 			if (msg.error) {
-				return lws.config.onAuthResponse(msg.payload);
+				return lws.config.onAuthResponse(msg.payload, null, lws.activeComponent);
 			}
-			return lws.config.onAuthResponse(null, msg.payload);
+			return lws.config.onAuthResponse(null, msg.payload, lws.activeComponent);
 		}
 		if (msg.error) {
 			console.error('lws-sdk:', msg.payload);
@@ -105,7 +106,15 @@ function handleContentMessage(evt) {
 		if (msg.payload.token) {
 			var request = new XMLHttpRequest();
 			var body = JSON.stringify(msg.payload);
-			request.open('POST', lws.config.website.apiUrl + '/login', true);
+			let loginUrl = lws.config.endpoints.login || lws.config.rootEndpoint + '/login';
+			if (!loginUrl.match(/^https?:/)) {
+				let websiteUrl = lws.config.website.url;
+				if (loginUrl.startsWith('/')) loginUrl = loginUrl.substr(1);
+				if (websiteUrl.endsWith('/'))
+					websiteUrl = websiteUrl.substr(0, websiteUrl.length - 1);
+				loginUrl = `${websiteUrl}/${loginUrl}`;
+			}
+			request.open('POST', loginUrl, true);
 			request.onreadystatechange = function() {
 				var redirectTo = msg.payload.redirectTo;
 				if (request.readyState > 3) {
@@ -142,18 +151,19 @@ function resolveDomElements(el) {
 }
 
 function initDomElements(config) {
-	var els = resolveDomElements(config.el);
-	lws.els = els.map(function initLWSForDomElement(el) {
+	var els = resolveDomElements(config.ui.el);
+	lws.components = els.map(function initLWSForDomElement(el) {
 		return render(el);
 	});
 }
 
 function teardownDomElements() {
-	if (!lws.els) return;
-	lws.els.forEach(function teardownDomElement(el) {
-		el.destroy();
+	lws.activeComponent = null;
+	if (!lws.components) return;
+	lws.components.forEach(function teardownDomElement(component) {
+		component.destroy();
 	});
-	lws.els = [];
+	lws.components = [];
 }
 
 function render(container) {
@@ -180,19 +190,24 @@ function render(container) {
 	lwsButton.el.addEventListener('click', function(evt) {
 		evt.preventDefault();
 		var html;
-
+		if (lws.activeComponent) {
+			lws.activeComponent.popup.hide();
+			lws.activeComponent = null;
+		}
 		if (lws.status !== STATUSES.INITIALIZED) {
 			html = initErrorTpl();
 		} else {
 			html = extensionUiTpl();
 		}
 		popup.show(html);
+
+		lws.activeComponent = component;
 	});
 
 	component.destroy = function destroy() {
 		this.container.innerHTML = '';
 	};
-	return el;
+	return component;
 }
 
 function renderLWSButton() {
@@ -235,14 +250,19 @@ function renderPopup() {
 	};
 
 	close.addEventListener('click', function handleClose() {
-		component.hide();
+		if (lws.activeComponent.popup !== component) {
+			component.hide();
+			return;
+		}
+		lws.activeComponent.popup.hide();
+		lws.activeComponent = null;
 	});
 
 	return component;
 }
 
 function initErrorTpl() {
-	return tpl.errorContentHtml({ extensionId });
+	return tpl.errorContentHtml({ extensionId: lws.config.extensionId || defaultExtensionId });
 }
 
 function extensionUiTpl() {
