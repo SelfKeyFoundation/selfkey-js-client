@@ -76,7 +76,7 @@ lws.init = function initLWS(config) {
 };
 
 lws.initFromContent = function initFromContent() {
-	if (lws.status !== STATUSES.INITIALIZED) {
+	if (![STATUSES.INITIALIZED, STATUSES.ERROR].includes(lws.status)) {
 		return;
 	}
 	sendToContent(
@@ -108,6 +108,21 @@ lws.initFromContent = function initFromContent() {
 	);
 };
 
+lws.disconnectFromContent = function disconnectFromContent() {
+	if (lws.status !== STATUSES.INITIALIZED) {
+		return;
+	}
+	lws.status = STATUSES.ERROR;
+	setTimeout(function() {
+		if (lws.status !== STATUSES.ERROR) {
+			return;
+		}
+		if (lws.activeComponent) {
+			lws.activeComponent.reinitUI();
+		}
+	}, 1000);
+};
+
 lws.teardown = function initLWS() {
 	teardownDomElements();
 	sendToContent({ type: 'wp_teardown' });
@@ -119,12 +134,14 @@ lws.teardown = function initLWS() {
 
 function handleContentMessage(evt) {
 	var msg = evt.data;
-	console.log(msg);
 	if (window !== evt.source) return;
 	if (!msg || !msg.type || !msg.meta || msg.meta.src !== CONTENT_SRC) return;
 	console.log('client: msg from content', msg);
 	if (msg.type === 'content_init') {
 		return lws.initFromContent();
+	}
+	if (msg.type === 'content_disconnect') {
+		return lws.disconnectFromContent();
 	}
 	if (msg.meta.id && lws.reqs[msg.meta.id]) {
 		return lws.reqs[msg.meta.id].handleRes(msg);
