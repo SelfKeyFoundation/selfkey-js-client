@@ -100,7 +100,6 @@ lws.initFromContent = function initFromContent() {
 			}
 			lws.status = STATUSES.INITIALIZED;
 			lws.extConfig = res.payload;
-			console.log(res.payload);
 			if (lws.activeComponent) {
 				lws.activeComponent.reinitUI();
 			}
@@ -123,6 +122,12 @@ lws.disconnectFromContent = function disconnectFromContent() {
 	}, 1000);
 };
 
+lws.disconnectFromWallet = function disconnectFromWallet() {
+	if (lws.activeComponent) {
+		lws.activeComponent.reinitUI();
+	}
+};
+
 lws.teardown = function initLWS() {
 	teardownDomElements();
 	sendToContent({ type: 'wp_teardown' });
@@ -142,6 +147,9 @@ function handleContentMessage(evt) {
 	}
 	if (msg.type === 'content_disconnect') {
 		return lws.disconnectFromContent();
+	}
+	if (msg.type === 'idw_disconnect') {
+		return lws.disconnectFromWallet();
 	}
 	if (msg.meta.id && lws.reqs[msg.meta.id]) {
 		return lws.reqs[msg.meta.id].handleRes(msg);
