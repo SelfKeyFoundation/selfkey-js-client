@@ -140,7 +140,7 @@ const serviceAuthMiddleware = (req, res, next) => {
 };
 
 const generateChallenge = (req, res) => {
-	let publicKey = req.params.publicKey;
+	let publicKey = (req.params.publicKey || '').replace('0x', '');
 	if (!publicKey || !ethUtil.isValidPublic(Buffer.from(publicKey, 'hex'))) {
 		return res
 			.status(400)
@@ -187,51 +187,56 @@ const handleChallengeResponse = (req, res) => {
 	return res.json({ jwt: token });
 };
 const createUser = (req, res) => {
-	let attributes = req.body.attributes;
-
-	try {
-		attributes = JSON.parse(attributes);
-	} catch (error) {
-		return res.status(400).json({
-			code: 'invalid_attributes',
-			message: 'Attributes field must be a json string'
-		});
+	let attributes;
+	const isJSON = req.headers['content-type'] === 'application/json';
+	if (isJSON) {
+		attributes = req.body;
+	} else {
+		try {
+			attributes = JSON.parse(req.body.attributes);
+		} catch (error) {
+			return res.status(400).json({
+				code: 'invalid_attributes',
+				message: 'Attributes field must be a json string'
+			});
+		}
 	}
 
 	if (!attributes || !attributes.length) {
 		return res.status(400).json({ code: 'no_attributes', message: 'No attributes provided' });
 	}
+	if (!isJSON) {
+		let documents = req.files.map(f => {
+			let doc = {
+				mimeType: f.mimetype,
+				size: f.size,
+				content: f.buffer
+			};
+			let id = f.fieldname.match(/^\$document-([0-9]*)$/);
+			if (id) doc.id = +id[1];
+			return doc;
+		});
 
-	let documents = req.files.map(f => {
-		let doc = {
-			mimeType: f.mimetype,
-			size: f.size,
-			content: f.buffer
-		};
-		let id = f.fieldname.match(/^\$document-([0-9]*)$/);
-		if (id) doc.id = +id[1];
-		return doc;
-	});
+		documents = documents.map(doc => {
+			let newDoc = Documents.create(doc);
+			let link = `${HOST}/documents/${newDoc.id}`;
+			doc.localId = newDoc.id;
+			doc.content = link;
+			return doc;
+		});
 
-	documents = documents.map(doc => {
-		let newDoc = Documents.create(doc);
-		let link = `${HOST}/documents/${newDoc.id}`;
-		doc.localId = newDoc.id;
-		doc.content = link;
-		return doc;
-	});
-
-	attributes = attributes.map(attr => {
-		let attrDocs = attr.documents
-			.map(id => {
-				let found = documents.filter(doc => doc.id === id);
-				return found.length ? found[0] : null;
-			})
-			.filter(doc => !!doc);
-		attr = { ...attr, documents: attrDocs };
-		let { value } = denormalizeDocumentsSchema(attr.schema, attr.data, attrDocs);
-		return { id: attr.id, value };
-	});
+		attributes = attributes.map(attr => {
+			let attrDocs = attr.documents
+				.map(id => {
+					let found = documents.filter(doc => doc.id === id);
+					return found.length ? found[0] : null;
+				})
+				.filter(doc => !!doc);
+			attr = { ...attr, documents: attrDocs };
+			let { value } = denormalizeDocumentsSchema(attr.schema, attr.data, attrDocs);
+			return { id: attr.id, value };
+		});
+	}
 
 	let publicKey = req.decodedAuth.sub;
 
@@ -269,10 +274,31 @@ const getUserPayload = (req, res) => {
 	return res.send({ token: userToken });
 };
 
+const uploadFile = (req, res) => {
+	// fetch file from request
+	const f = req.file;
+
+	if (!f) return res.status(400).json({ code: 'no_file', message: 'no file uploaded' });
+
+	// parse file info
+	let doc = {
+		mimeType: f.mimetype,
+		size: f.size,
+		content: f.buffer
+	};
+
+	// save the document to storage
+	doc = Documents.create(doc);
+
+	// respond with document id
+	return res.json({ id: doc.id });
+};
+
 router.get('/auth/challenge/:publicKey', generateChallenge);
 router.post('/auth/challenge', jwtAuthMiddleware, handleChallengeResponse);
 router.post('/users', jwtAuthMiddleware, serviceAuthMiddleware, upload.any(), createUser);
-router.get('/auth/token', jwtAuthMiddleware, serviceAuthMiddleware, getUserPayload);
+router.get('/users/token', jwtAuthMiddleware, serviceAuthMiddleware, getUserPayload);
+router.post('/users/file', jwtAuthMiddleware, upload.single('document'), uploadFile);
 router.options('/login', cors());
 router.post('/login', cors(), login);
 router.use((error, req, res, next) => {

@@ -75,6 +75,59 @@ lws.init = function initLWS(config) {
 	);
 };
 
+lws.initFromContent = function initFromContent() {
+	if (![STATUSES.INITIALIZED, STATUSES.ERROR].includes(lws.status)) {
+		return;
+	}
+	sendToContent(
+		{
+			type: 'wp_init',
+			payload: {
+				website: lws.config.website,
+				rootEndpoint: lws.config.rootEndpoint,
+				endpoints: lws.config.endpoints,
+				attributes: lws.config.attributes,
+				meta: lws.config.meta
+			}
+		},
+		{},
+		function initCb(err, res) {
+			if (err) {
+				console.error(err);
+				lws.status = STATUSES.ERROR;
+				lws.initError = err;
+				return;
+			}
+			lws.status = STATUSES.INITIALIZED;
+			lws.extConfig = res.payload;
+			if (lws.activeComponent) {
+				lws.activeComponent.reinitUI();
+			}
+		}
+	);
+};
+
+lws.disconnectFromContent = function disconnectFromContent() {
+	if (lws.status !== STATUSES.INITIALIZED) {
+		return;
+	}
+	lws.status = STATUSES.ERROR;
+	setTimeout(function() {
+		if (lws.status !== STATUSES.ERROR) {
+			return;
+		}
+		if (lws.activeComponent) {
+			lws.activeComponent.reinitUI();
+		}
+	}, 1000);
+};
+
+lws.disconnectFromWallet = function disconnectFromWallet() {
+	if (lws.activeComponent) {
+		lws.activeComponent.reinitUI();
+	}
+};
+
 lws.teardown = function initLWS() {
 	teardownDomElements();
 	sendToContent({ type: 'wp_teardown' });
@@ -89,6 +142,15 @@ function handleContentMessage(evt) {
 	if (window !== evt.source) return;
 	if (!msg || !msg.type || !msg.meta || msg.meta.src !== CONTENT_SRC) return;
 	console.log('client: msg from content', msg);
+	if (msg.type === 'content_init') {
+		return lws.initFromContent();
+	}
+	if (msg.type === 'content_disconnect') {
+		return lws.disconnectFromContent();
+	}
+	if (msg.type === 'idw_disconnect') {
+		return lws.disconnectFromWallet();
+	}
 	if (msg.meta.id && lws.reqs[msg.meta.id]) {
 		return lws.reqs[msg.meta.id].handleRes(msg);
 	}
@@ -186,26 +248,33 @@ function render(container) {
 	component.el = el;
 	component.popup = popup;
 	component.button = lwsButton;
-
-	lwsButton.el.addEventListener('click', function(evt) {
-		evt.preventDefault();
+	const displayPopup = comp => {
 		var html;
-		if (lws.activeComponent) {
-			lws.activeComponent.popup.hide();
-			lws.activeComponent = null;
-		}
 		if (lws.status !== STATUSES.INITIALIZED) {
 			html = initErrorTpl();
 		} else {
 			html = extensionUiTpl();
 		}
-		popup.show(html);
+		comp.popup.show(html);
+	};
+
+	lwsButton.el.addEventListener('click', function(evt) {
+		evt.preventDefault();
+		if (lws.activeComponent) {
+			lws.activeComponent.popup.hide();
+			lws.activeComponent = null;
+		}
+		displayPopup(component);
 
 		lws.activeComponent = component;
 	});
 
 	component.destroy = function destroy() {
 		this.container.innerHTML = '';
+	};
+	component.reinitUI = function reinitUI() {
+		console.log('LWS: reinit UI');
+		displayPopup(component);
 	};
 	return component;
 }
