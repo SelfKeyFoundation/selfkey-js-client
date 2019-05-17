@@ -9,7 +9,7 @@
   "license": "GPL-3.0-only",
   "main": "./dist/lws.js",
   "module": "./dist/lws.js",
-  "name": "lws-js-client",
+  "name": "@selfkey/lws-js-client",
   "repository": "https://github.com/kyc-chain/selfkey-js-client",
   "scripts": {
     "build": "webpack --config webpack.prod.js",

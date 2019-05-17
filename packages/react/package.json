@@ -4,7 +4,7 @@
     "url": "https://github.com/SelfKeyFoundation/selfkey-js-client/issues"
   },
   "dependencies": {
-    "lws-js-client": "^1.0.0-beta.27"
+    "@selfkey/lws-js-client": "^1.0.0-beta.27"
   },
   "description": "React SDK for integrating Login with SelfKey",
   "devDependencies": {
@@ -18,7 +18,7 @@
   "license": "GPL-3.0-only",
   "main": "dist/lws-react-client.js",
   "module": "dist/lws-react-client.js",
-  "name": "lws-react-client",
+  "name": "@selfkey/lws-react-client",
   "peerDependencies": {
     "react": "^16.4.1",
     "react-dom": "^16.4.1"

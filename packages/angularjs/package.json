@@ -4,7 +4,7 @@
     "url": "https://github.com/SelfKeyFoundation/selfkey-js-client/issues"
   },
   "dependencies": {
-    "lws-js-client": "^1.0.0-beta.27"
+    "@selfkey/lws-js-client": "^1.0.0-beta.27"
   },
   "description": "Angular.js 1 SDK for integrating Login with SelfKey",
   "devDependencies": {
@@ -17,7 +17,7 @@
   "license": "GPL-3.0-only",
   "main": "dist/lws-angularjs-client.js",
   "module": "dist/lws-angularjs-client.js",
-  "name": "lws-angularjs-client",
+  "name": "@selfkey/lws-angularjs-client",
   "peerDependencies": {
     "angular": "^1.6"
   },

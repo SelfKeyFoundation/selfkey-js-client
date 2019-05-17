@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import lws from 'lws-js-client';
+import lws from '@selfkey/lws-js-client';
 
 export class LWSButton extends Component {
 	componentDidMount() {

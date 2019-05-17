@@ -4,7 +4,7 @@
 		"url": "https://github.com/SelfKeyFoundation/selfkey-js-client/issues"
 	},
 	"dependencies": {
-		"lws-js-client": "^1.0.0-beta.27"
+		"@selfkey/lws-js-client": "^1.0.0-beta.27"
 	},
 	"description": "Vue.js SDK for integrating Login with SelfKey",
 	"devDependencies": {
@@ -17,7 +17,7 @@
 	"license": "GPL-3.0-only",
 	"main": "dist/lws-vue-client.js",
 	"module": "dist/lws-vue-client.js",
-	"name": "lws-vue-client",
+	"name": "@selfkey/lws-vue-client",
 	"peerDependencies": {
 		"vue": "^2.5.16"
 	},

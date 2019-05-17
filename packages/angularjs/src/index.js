@@ -1,5 +1,5 @@
 import angular from 'angular';
-import lws from 'lws-js-client';
+import lws from '@selfkey/lws-js-client';
 
 angular.module('lwsSdk', []).directive('lwsButton', [
 	() => {
