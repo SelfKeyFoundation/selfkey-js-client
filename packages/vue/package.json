@@ -31,5 +31,8 @@
 		"test": "echo 'please implement tests'"
 	},
 	"unpkg": "dist/lws-vue-client.min.js",
-	"version": "1.0.0-beta.27"
+  "version": "1.0.0-beta.27",
+  "publishConfig": {
+    "access": "public"
+  }
 }
