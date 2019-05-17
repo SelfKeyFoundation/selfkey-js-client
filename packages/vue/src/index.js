@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import lws from 'lws-js-client';
+import lws from '@selfkey/lws-js-client';
 
 Vue.component('lws-button', {
 	template: '<div v-bind:class="className"></div>',
