@@ -10,6 +10,7 @@ const upload = multer();
 const JWT_SECRET = 'SHHH';
 const HOST = `http://localhost:${process.env.PORT}`;
 const cors = require('cors');
+const selfkey = require('@selfkey/node-lib');
 
 const denormalizeDocumentsSchema = (typeSchema, value, documents = [], maxDepth = 10) => {
 	if (maxDepth < 0) {
@@ -108,21 +109,30 @@ const jwtAuthMiddleware = (req, res, next) => {
 	if (!auth.startsWith('Bearer ')) {
 		return res.status(400).json({
 			code: 'invalid_auth_token',
-			message: 'Subject should contain a valid public key'
+			message: 'should contain a valid token'
 		});
 	}
 	auth = auth.replace(/^Bearer /, '');
 	try {
 		let decoded = jwt.verify(auth, JWT_SECRET);
 		req.decodedAuth = decoded;
-		if (!ethUtil.isValidPublic(Buffer.from(req.decodedAuth.sub, 'hex'))) {
+		console.log('XXX', decoded);
+		try {
+			if (!selfkey.isSupported(req.decodedAuth.sub)) {
+				return res.status(400).json({
+					code: 'invalid_did',
+					message: 'Subject should contain a valid did'
+				});
+			}
+		} catch (error) {
 			return res.status(400).json({
-				code: 'invalid_auth_token',
-				message: 'Subject should contain a valid public key'
+				code: 'invalid_did',
+				message: 'Subject should contain a valid did'
 			});
 		}
 		next();
 	} catch (error) {
+		console.log('XXX', error);
 		return res
 			.status(401)
 			.json({ code: 'invalid_auth_token', message: 'Invalid autentication token' });
@@ -140,19 +150,29 @@ const serviceAuthMiddleware = (req, res, next) => {
 };
 
 const generateChallenge = (req, res) => {
-	let publicKey = (req.params.publicKey || '').replace('0x', '');
-	if (!publicKey || !ethUtil.isValidPublic(Buffer.from(publicKey, 'hex'))) {
-		return res
-			.status(400)
-			.json({ code: 'invalid_public_key', message: 'Invalid public key provided' });
+	let did = req.params.did;
+	try {
+		if (!selfkey.isSupported(did)) {
+			return res.status(400).json({
+				code: 'invalid_did',
+				message: 'Should be a valid did'
+			});
+		}
+	} catch (error) {
+		return res.status(400).json({
+			code: 'invalid_did',
+			message: 'Should be a valid did'
+		});
 	}
 	let challenge = crypto.randomBytes(48).toString('hex');
-	let jwtToken = jwt.sign({ challenge }, JWT_SECRET, { expiresIn: '5m', subject: publicKey });
+	let jwtToken = jwt.sign({ challenge }, JWT_SECRET, { expiresIn: '5m', subject: did });
 	return res.json({ jwt: jwtToken });
 };
-const handleChallengeResponse = (req, res) => {
+const handleChallengeResponse = async (req, res) => {
 	let challenge = req.decodedAuth.challenge;
-	let publicKey = req.decodedAuth.sub;
+	let did = await selfkey.resolve(req.decodedAuth.sub);
+	console.log('XXX', did);
+	let resolvedAddress = did.publicKey[0].ethereumAddress;
 	if (!challenge) {
 		return res
 			.status(401)
@@ -162,28 +182,25 @@ const handleChallengeResponse = (req, res) => {
 	if (!signature) {
 		return res.status(400).json({ code: 'no_signature', message: 'No signature provided' });
 	}
-	let calculatedPublicKey;
+	let calculatedAddress;
 	try {
 		const msgHash = ethUtil.hashPersonalMessage(Buffer.from(challenge));
 		const sig = ethUtil.fromRpcSig(signature);
-		calculatedPublicKey = ethUtil.ecrecover(msgHash, sig.v, sig.r, sig.s).toString('hex');
+		calculatedAddress = ethUtil.bufferToHex(
+			ethUtil.pubToAddress(ethUtil.ecrecover(msgHash, sig.v, sig.r, sig.s))
+		);
 	} catch (err) {
 		return res
 			.status(401)
 			.json({ code: 'invalid_signature', message: 'Invalid signature provided' });
 	}
 
-	if (!calculatedPublicKey || !ethUtil.isValidPublic(Buffer.from(calculatedPublicKey, 'hex'))) {
-		return res
-			.status(401)
-			.json({ code: 'no_public_key', message: "Couldn't derive public key from signature" });
-	}
-	if (calculatedPublicKey !== publicKey) {
+	if (calculatedAddress !== resolvedAddress) {
 		return res
 			.status(401)
 			.json({ code: 'invalid_signature', message: 'Invalid signature provided' });
 	}
-	let token = jwt.sign({}, JWT_SECRET, { expiresIn: '1h', subject: publicKey });
+	let token = jwt.sign({}, JWT_SECRET, { expiresIn: '1h', subject: did.id });
 	return res.json({ jwt: token });
 };
 const createUser = (req, res) => {
@@ -241,15 +258,15 @@ const createUser = (req, res) => {
 		});
 	}
 
-	let publicKey = req.decodedAuth.sub;
+	let did = req.decodedAuth.sub;
 
-	let user = Users.findByPublicKey(publicKey);
+	let user = Users.findByDID(did);
 
 	if (user) {
 		console.log('updating user');
 		user = Users.update(user.id, { attributes, meta });
 	} else {
-		user = Users.create({ attributes, meta }, publicKey);
+		user = Users.create({ attributes, meta }, did);
 	}
 
 	if (!user) {
@@ -262,13 +279,13 @@ const createUser = (req, res) => {
 	return res.status(201).send();
 };
 const getUserPayload = (req, res) => {
-	let publicKey = req.decodedAuth.sub;
-	let user = Users.findByPublicKey(publicKey);
+	let did = req.decodedAuth.sub;
+	let user = Users.findByDID(did);
 
 	if (!user) {
 		return res.status(404).json({
 			code: 'user_does_not_exist',
-			message: 'User with provided public key does not exist'
+			message: 'User with provided did does not exist'
 		});
 	}
 
@@ -297,7 +314,7 @@ const uploadFile = (req, res) => {
 	return res.json({ id: doc.id });
 };
 
-router.get('/auth/challenge/:publicKey', generateChallenge);
+router.get('/auth/challenge/:did', generateChallenge);
 router.post('/auth/challenge', jwtAuthMiddleware, handleChallengeResponse);
 router.post('/users', jwtAuthMiddleware, serviceAuthMiddleware, upload.any(), createUser);
 router.get('/users/token', jwtAuthMiddleware, serviceAuthMiddleware, getUserPayload);
