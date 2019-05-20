@@ -188,12 +188,15 @@ const handleChallengeResponse = (req, res) => {
 };
 const createUser = (req, res) => {
 	let attributes;
+	let meta;
 	const isJSON = req.headers['content-type'] === 'application/json';
 	if (isJSON) {
-		attributes = req.body;
+		attributes = req.body.attributes;
+		meta = req.body.meta;
 	} else {
 		try {
 			attributes = JSON.parse(req.body.attributes);
+			meta = JSON.parse(req.body.meta || '{}');
 		} catch (error) {
 			return res.status(400).json({
 				code: 'invalid_attributes',
@@ -244,9 +247,9 @@ const createUser = (req, res) => {
 
 	if (user) {
 		console.log('updating user');
-		user = Users.update(user.id, { attributes });
+		user = Users.update(user.id, { attributes, meta });
 	} else {
-		user = Users.create({ attributes }, publicKey);
+		user = Users.create({ attributes, meta }, publicKey);
 	}
 
 	if (!user) {
