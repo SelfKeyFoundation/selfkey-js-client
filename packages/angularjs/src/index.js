@@ -13,6 +13,7 @@ angular.module('lwsSdk', []).directive('lwsButton', [
 				extensionId: '=',
 				website: '=',
 				meta: '=',
+				did: '=',
 				onAuthResponse: '&'
 			},
 
@@ -27,6 +28,7 @@ angular.module('lwsSdk', []).directive('lwsButton', [
 					extensionId: scope.extensionId,
 					rootEndpoint: scope.rootEndpoint,
 					endpoints: scope.endpoints,
+					did: scope.did,
 					meta: scope.meta,
 					onAuthResponse: handleAuthResponce
 				});
