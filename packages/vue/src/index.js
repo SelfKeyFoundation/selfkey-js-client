@@ -11,6 +11,7 @@ Vue.component('lws-button', {
 		'endpoints',
 		'extensionId',
 		'meta',
+		'did',
 		'className'
 	],
 	mounted() {
@@ -22,6 +23,7 @@ Vue.component('lws-button', {
 				rootEndpoint,
 				endpoints,
 				extensionId,
+				did,
 				meta
 			} = this;
 			lws.init({
@@ -31,6 +33,7 @@ Vue.component('lws-button', {
 				rootEndpoint,
 				endpoints,
 				meta,
+				did,
 				extensionId,
 				ui: { el: this.$el }
 			});

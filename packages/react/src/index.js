@@ -10,6 +10,7 @@ export class LWSButton extends Component {
 			rootEndpoint,
 			endpoints,
 			extensionId,
+			did,
 			meta
 		} = this.props;
 		lws.init({
@@ -19,6 +20,7 @@ export class LWSButton extends Component {
 			rootEndpoint,
 			endpoints,
 			meta,
+			did,
 			extensionId,
 			ui: { el: this.el }
 		});

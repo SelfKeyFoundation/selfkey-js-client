@@ -58,6 +58,7 @@ lws.init = function initLWS(config) {
 				rootEndpoint: config.rootEndpoint,
 				endpoints: config.endpoints,
 				attributes: config.attributes,
+				did: config.did || false,
 				meta: config.meta
 			}
 		},
@@ -87,7 +88,8 @@ lws.initFromContent = function initFromContent() {
 				rootEndpoint: lws.config.rootEndpoint,
 				endpoints: lws.config.endpoints,
 				attributes: lws.config.attributes,
-				meta: lws.config.meta
+				meta: lws.config.meta,
+				did: lws.config.did || false
 			}
 		},
 		{},
