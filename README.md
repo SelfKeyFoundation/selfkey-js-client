@@ -1,6 +1,6 @@
 # SelfKey JavaScript Client Library
 
-Client library for integrating with SelfKey Connect Browser Extension
+Client library for integrating with Selfkey Extension Browser Extension
 
 ## Contributing
 
