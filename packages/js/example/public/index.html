@@ -27,21 +27,22 @@
 			rootEndpoint: '/api/v1/selfkey',
 			attributes: [
 				{
-					key: 'first_name',
-					label: 'First Name',
-					attribute: 'http://platform.selfkey.org/schema/attribute/first-name.json'
+					id: 'first_name',
+					title: 'First Name',
+					schemaId: 'http://platform.selfkey.org/schema/attribute/first-name.json'
 				},
 				{
-					key: 'last_name',
-					label: 'Last Name',
-					attribute: 'http://platform.selfkey.org/schema/attribute/last-name.json'
+					id: 'last_name',
+					title: 'Last Name',
+					schemaId: 'http://platform.selfkey.org/schema/attribute/last-name.json'
 				},
 				{
-					key: 'national_id',
-					label: 'National ID',
-					attribute: 'http://platform.selfkey.org/schema/attribute/national-id.json'
+					id: 'national_id',
+					title: 'National ID',
+					schemaId: 'http://platform.selfkey.org/schema/attribute/national-id.json'
 				}
-			]
+			],
+			meta: { test1: true }
 		});
 	</script>
 </html>

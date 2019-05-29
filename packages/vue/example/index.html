@@ -1,55 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Document</title>
+	</head>
 
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta http-equiv="X-UA-Compatible" content="ie=edge">
-	<title>Document</title>
-</head>
-
-<body>
-	<h1>Vue.js Integration Example</h1>
-	<div id="root">
-		<lws-button v-bind:website="website" v-bind:attributes="attributes" v-bind:root-endpoint="rootEndpoint"></lws-button>
-	</div>
-	<script src="http://unpkg.com/vue@2.5.17/dist/vue.js"></script>
-	<script src="./lws-vue-client.js"></script>
-	<script>
-		new Vue({
-			el: '#root',
-			data: {
-				website: {
-					name: 'LWS Example',
-					url: 'http://localhost:3033/',
-					termsUrl: 'http://localhost:3030/terms.html',
-					policyUrl: 'http://localhost:3030/policy.html'
-				},
-				rootEndpoint: 'http://localhost:3030/api/v1/selfkey',
-				attributes: [
-					{
-						key: "first_name",
-						label: "First Name",
-						attribute: "http://platform.selfkey.org/schema/attribute/first-name.json"
+	<body>
+		<h1>Vue.js Integration Example</h1>
+		<div id="root">
+			<lws-button
+				v-bind:website="website"
+				v-bind:attributes="attributes"
+				v-bind:root-endpoint="rootEndpoint"
+			></lws-button>
+		</div>
+		<script src="http://unpkg.com/vue@2.5.17/dist/vue.js"></script>
+		<script src="./lws-vue-client.js"></script>
+		<script>
+			new Vue({
+				el: '#root',
+				data: {
+					website: {
+						name: 'LWS Example',
+						url: 'http://localhost:3033/',
+						termsUrl: 'http://localhost:3030/terms.html',
+						policyUrl: 'http://localhost:3030/policy.html'
 					},
-					{
-						key: "last_name",
-						label: "Last Name",
-						attribute: "http://platform.selfkey.org/schema/attribute/last-name.json"
-					},
-					{
-						key: "email",
-						label: "Email"
-					},
-					{
-						key: "id_selfie",
-						label: "National ID Selfie"
-					}
-				],
-			}
-		});
-
-	</script>
-</body>
-
+					rootEndpoint: 'http://localhost:3030/api/v1/selfkey',
+					attributes: [
+						{
+							id: 'first_name',
+							title: 'First Name',
+							schemaId: 'http://platform.selfkey.org/schema/attribute/first-name.json'
+						},
+						{
+							id: 'last_name',
+							title: 'Last Name',
+							schemaId: 'http://platform.selfkey.org/schema/attribute/last-name.json'
+						},
+						{
+							id: 'national_id',
+							title: 'National ID',
+							schemaId:
+								'http://platform.selfkey.org/schema/attribute/national-id.json'
+						}
+					]
+				}
+			});
+		</script>
+	</body>
 </html>

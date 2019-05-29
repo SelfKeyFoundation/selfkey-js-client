@@ -1,55 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Document</title>
+	</head>
 
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta http-equiv="X-UA-Compatible" content="ie=edge">
-	<title>Document</title>
-</head>
-
-<body ng-app="lwsExample">
-	<h1>Angular.js Integration Example</h1>
-	<div ng-controller="login">
-		<lws-button website="website" attributes="attributes" root-endpoint="rootEndpoint" on-auth-response="onAuthResponse(err,res,ui)"></lws-button>
-	</div>
-	<script src="http://unpkg.com/angular@1.6.10/angular.min.js"></script>
-	<script src="./lws-angularjs-client.js"></script>
-	<script>
-		angular.module('lwsExample', ['lwsSdk'])
-			.controller('login', ['$scope', ($scope) => {
-				$scope.website = {
-					name: 'LWS Example',
-					url: 'http://localhost:3031/',
-					termsUrl: 'http://localhost:3031/terms.html',
-					policyUrl: 'http://localhost:3031/policy.html',
-				};
-				$scope.rootEndpoint = 'http://localhost:3030/api/v1/selfkey',
-				$scope.attributes = [
-					{
-						key: "first_name",
-						label: "First Name",
-						attribute: "http://platform.selfkey.org/schema/attribute/first-name.json"
-					},
-					{
-						key: "last_name",
-						label: "Last Name",
-						attribute: "http://platform.selfkey.org/schema/attribute/last-name.json"
-					},
-					{
-						key: "email",
-						label: "Email"
-					},
-					{
-						key: "id_selfie",
-						label: "National ID Selfie"
-					}
-				];
-				$scope.onAuthResponse = (err, res, ui) => {
-					console.log('OnAuthResponse', err, res, ui);
+	<body ng-app="lwsExample">
+		<h1>Angular.js Integration Example</h1>
+		<div ng-controller="login">
+			<lws-button
+				website="website"
+				attributes="attributes"
+				root-endpoint="rootEndpoint"
+				on-auth-response="onAuthResponse(err, res, ui)"
+			></lws-button>
+		</div>
+		<script src="http://unpkg.com/angular@1.6.10/angular.min.js"></script>
+		<script src="./lws-angularjs-client.js"></script>
+		<script>
+			angular.module('lwsExample', ['lwsSdk']).controller('login', [
+				'$scope',
+				$scope => {
+					$scope.website = {
+						name: 'LWS Example',
+						url: 'http://localhost:3031/',
+						termsUrl: 'http://localhost:3031/terms.html',
+						policyUrl: 'http://localhost:3031/policy.html'
+					};
+					$scope.rootEndpoint = 'http://localhost:3030/api/v1/selfkey';
+					$scope.attributes = [
+						{
+							id: 'first_name',
+							title: 'First Name',
+							schemaId: 'http://platform.selfkey.org/schema/attribute/first-name.json'
+						},
+						{
+							id: 'last_name',
+							title: 'Last Name',
+							schemaId: 'http://platform.selfkey.org/schema/attribute/last-name.json'
+						},
+						{
+							id: 'national_id',
+							title: 'National ID',
+							schemaId:
+								'http://platform.selfkey.org/schema/attribute/national-id.json'
+						}
+					];
+					$scope.onAuthResponse = (err, res, ui) => {
+						console.log('OnAuthResponse', err, res, ui);
+					};
 				}
-			}]);
-	</script>
-</body>
-
+			]);
+		</script>
+	</body>
 </html>
