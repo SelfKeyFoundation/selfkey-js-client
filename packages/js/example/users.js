@@ -4,10 +4,8 @@ const byId = {};
 let runningId = 0;
 const HOST = `http://localhost:${process.env.PORT}`;
 
-exports.findByPublicKey = publicKey => {
-	let found = allIds
-		.map(id => byId[id])
-		.filter(usr => usr.publicKeys && usr.publicKeys.includes(publicKey));
+exports.findByDID = did => {
+	let found = allIds.map(id => byId[id]).filter(usr => usr.dids && usr.dids.includes(did));
 	if (!found.length) return null;
 	return found[0];
 };
@@ -16,9 +14,9 @@ exports.findById = id => {
 	return byId[id];
 };
 
-exports.create = (data, publicKey) => {
+exports.create = (data, did) => {
 	let user = Object.assign({}, data, { id: ++runningId });
-	user.publicKeys = [publicKey];
+	user.dids = [did];
 	allIds.push(user.id);
 	byId[user.id] = user;
 	return user;
