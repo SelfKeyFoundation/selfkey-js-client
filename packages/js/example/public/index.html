@@ -17,7 +17,7 @@
 			ui: {
 				el: '.lwsClient'
 			},
-			extensionId: 'knldjmfmopnpolahpmmgbagdohdnhkik',
+			// extensionId: 'knldjmfmopnpolahpmmgbagdohdnhkik',
 			website: {
 				name: 'LWS Example',
 				url: 'http://localhost:3030/',
@@ -25,6 +25,7 @@
 				policyUrl: 'http://localhost:3030/policy.html'
 			},
 			rootEndpoint: '/api/v1/selfkey',
+			did: true,
 			attributes: [
 				{
 					id: 'first_name',
@@ -39,7 +40,8 @@
 				{
 					id: 'national_id',
 					title: 'National ID',
-					schemaId: 'http://platform.selfkey.org/schema/attribute/national-id.json'
+					schemaId: 'http://platform.selfkey.org/schema/attribute/national-id.json',
+					required: true
 				}
 			],
 			meta: { test1: true }

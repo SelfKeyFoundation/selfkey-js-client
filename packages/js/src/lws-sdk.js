@@ -167,7 +167,7 @@ function handleContentMessage(evt) {
 			console.error('lws-sdk:', msg.payload);
 			return;
 		}
-		if (msg.payload.token) {
+		if (msg.payload.token || msg.payload.jwt) {
 			var request = new XMLHttpRequest();
 			var body = JSON.stringify(msg.payload);
 			let loginUrl = lws.config.endpoints.login || lws.config.rootEndpoint + '/login';
